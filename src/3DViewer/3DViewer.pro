@@ -10,10 +10,16 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    obj_parcer.c \
+    widget.cpp \
+
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    obj_model.h \
+    obj_parcer.h \
+    widget.h
 
 FORMS += \
     mainwindow.ui
