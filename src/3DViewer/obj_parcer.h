@@ -4,15 +4,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include<string.h>
-#include<math.h>
-#include"obj_model.h"
-
-/*
-#include <ctype.h>
-#include <locale.h>
-*/
-
+#include <string.h>
+#include <math.h>
+#include "obj_model.h"
 
 int count_vertices(const char *filename) ;
 float parse_float_number(char* str);
