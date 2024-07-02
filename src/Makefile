@@ -63,13 +63,14 @@ style :
 	cp ../materials/linters/.clang-format .
 	clang-format -n *.c *.h $(TESTS)/*
 uninstall: 
-	rm -r $(INST_DIR)
-install:	
-	mkdir $(INST_DIR)
-	cd $(INST_DIR); qmake ../qt/$(INST_DIR)/$(INST_DIR).pro
-	cd $(INST_DIR); make
-	cd $(INST_DIR); make clean
-	open $(INST_DIR)
+	rm -r 3DViewer.app
+install:
+	mkdir 	$(INST_DIR)
+	cd $(INST_DIR)
+	qmake 3DViewer/3DViewer.pro
+	make
+	make clean
+	open 3DViewer.app
 dist:
 	mkdir $(DIST_DIR)
 	mkdir $(DIST_DIR)/qt

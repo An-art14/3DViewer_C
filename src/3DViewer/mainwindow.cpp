@@ -27,7 +27,7 @@ void MainWindow::on_FileButton_clicked()
                 qDebug() << "Selected file:" << fileName;
                 ui->openGLWidget->clearCanvas();
                 ui->openGLWidget->draw_obj(fileName.toStdString().c_str());
-                ui->openGLWidget->setupShader();
+                //ui->openGLWidget->setupShader();
 
             } else {
                 qDebug() << "No file selected.";

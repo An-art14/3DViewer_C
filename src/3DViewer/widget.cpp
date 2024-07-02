@@ -2,7 +2,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLShader>
 #include <QDebug>
-#include <GLES3/gl3.h>
+
 #include<math.h>
 #include "obj_parcer.h"
 Widget::Widget(QWidget *parent)
@@ -15,7 +15,7 @@ Widget::~Widget()
     makeCurrent();
     glDeleteBuffers(1, &vboVertices);
     glDeleteBuffers(1, &vboIndices);
-    glDeleteVertexArrays(1, &vao);
+    //glDeleteVertexArrays(1, &vao);
     glDeleteProgram(shaderProgram);
     doneCurrent();
 }
@@ -25,7 +25,7 @@ void Widget::initializeGL()
     initializeOpenGLFunctions();
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glEnable(GL_DEPTH_TEST);
-    draw_obj("cube.obj");
+    //draw_obj("cube.obj");
     setupShader();
 
 }
@@ -44,9 +44,9 @@ void Widget::paintGL()
     glUseProgram(shaderProgram);
 
     // Bind VAO and draw the rectangle
-    glBindVertexArray(vao);
+    //glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0); // Unbind VAO
+   // glBindVertexArray(0); // Unbind VAO
 
     // Optional: Cleanup state
     glUseProgram(0);
@@ -78,7 +78,7 @@ void Widget::draw_obj(const char* filename)
         vertices.push_back(model.vertices[i].z);
 
     }
-
+printf("suceful\n");
     free(model.vertices);
 
     // Индексы вершин для отрисовки куба (оставляем без изменений)
@@ -98,8 +98,8 @@ void Widget::draw_obj(const char* filename)
     };
 
     // Генерация и привязка VAO
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    // glGenVertexArrays(1, &vao);
+    // glBindVertexArray(vao);
 
     // Генерация и заполнение буфера вершин
     glGenBuffers(1, &vboVertices);
@@ -117,7 +117,7 @@ void Widget::draw_obj(const char* filename)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
 //    // Отвязка VAO
-    glBindVertexArray(0);
+   // glBindVertexArray(0);
     numIndices=indices.size();// Число индексов в кубе
 
 
@@ -218,7 +218,6 @@ void Widget::setupShader()
 
 void Widget::clearCanvas()
 {
-    initializeOpenGLFunctions();
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glEnable(GL_DEPTH_TEST);
+
+    initializeGL();
 }
