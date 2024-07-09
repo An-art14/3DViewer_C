@@ -4,11 +4,16 @@
 typedef struct {
     float x, y, z;
 } Vertex;
+typedef struct {
+    unsigned int v1, v2, v3;
+} Face;
 
 // Структура для хранения данных модели
 typedef struct {
-    Vertex *vertices;   // Указатель на массив вершин
-    int vertex_count;   // Количество вершин
+    Vertex* vertices;
+    int vertex_count;
+    Face* faces;
+    int face_count;
 } Model_data;
 
 

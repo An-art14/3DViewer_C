@@ -1,4 +1,4 @@
-QT       += core gui opengl openglwidgets
+QT       += core gui opengl 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,9 +13,11 @@ SOURCES += \
     mainwindow.cpp \
     obj_parcer.c \
     widget.cpp \
-    affine.c
+    affine.c \
+    gif.cpp
 
 HEADERS += \
+    gif.h \
     mainwindow.h \
     obj_model.h \
     obj_parcer.h \

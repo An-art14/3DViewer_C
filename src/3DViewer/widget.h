@@ -7,7 +7,6 @@ extern "C" {
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <vector>
-
 class Widget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -16,8 +15,10 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
     void draw_obj(const char * filename);
+    void draw(Model_data model);
     void setupShader();
     void clearCanvas();
+    Model_data getModel()const;
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -26,7 +27,7 @@ protected:
 
 private:
 
-
+    Model_data model;
 
     GLuint vao;
     GLuint vboVertices;

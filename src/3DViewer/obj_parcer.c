@@ -33,11 +33,10 @@ float parse_float_number(char* str) {
     return result;
 }
 
-
 Vertex parse_vertex(char* str) {
     Vertex result;
     char *token;
-     token = strtok(str, "v ");
+    token = strtok(str, "v ");
     if (token != NULL) {
         result.x = parse_float_number(token);
         token = strtok(NULL, " ");
@@ -51,7 +50,25 @@ Vertex parse_vertex(char* str) {
     }
     return result;
 }
-// Функция для подсчета количества вершин в файле Obj
+
+Face parse_face(char* str) {
+    Face result;
+    char *token;
+    token = strtok(str, "f ");
+    if (token != NULL) {
+        result.v1 = atoi(token) - 1;  // Obj indices are 1-based
+        token = strtok(NULL, " ");
+    }
+    if (token != NULL) {
+        result.v2 = atoi(token) - 1;
+        token = strtok(NULL, " ");
+    }
+    if (token != NULL) {
+        result.v3 = atoi(token) - 1;
+    }
+    return result;
+}
+
 int count_vertices(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -71,8 +88,25 @@ int count_vertices(const char *filename) {
     return count;
 }
 
+int count_faces(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Не удалось открыть файл");
+        exit(1);
+    }
 
-// Функция для чтения данных из файла Obj
+    int count = 0;
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        if (line[0] == 'f' && line[1] == ' ') {
+            count++;
+        }
+    }
+
+    fclose(file);
+    return count;
+}
+
 void read_obj_file(const char *filename, Model_data *model) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -86,22 +120,29 @@ void read_obj_file(const char *filename, Model_data *model) {
         exit(1);
     }
 
-    int index = 0;
+    model->faces = (Face *)malloc(model->face_count * sizeof(Face));
+    if (model->faces == NULL) {
+        perror("Не удалось выделить память");
+        exit(1);
+    }
+
+    int vertex_index = 0;
+    int face_index = 0;
     char line[256];
 
     while (fgets(line, sizeof(line), file)) {
         if (line[0] == 'v' && line[1] == ' ') {
-            // Убираем лишние пробелы в начале строки
             char *ptr = line;
             while (*ptr == ' ' || *ptr == '\t') {
                 ptr++;
             }
-
-
-            Vertex vertex;
-            vertex=parse_vertex(ptr);
-            model->vertices[index++] = vertex;
-
+            model->vertices[vertex_index++] = parse_vertex(ptr);
+        } else if (line[0] == 'f' && line[1] == ' ') {
+            char *ptr = line;
+            while (*ptr == ' ' || *ptr == '\t') {
+                ptr++;
+            }
+            model->faces[face_index++] = parse_face(ptr);
         }
     }
     fclose(file);

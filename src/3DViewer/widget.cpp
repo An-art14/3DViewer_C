@@ -2,7 +2,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLShader>
 #include <QDebug>
-
+#include"mainwindow.h"
 #include<math.h>
 #include "obj_parcer.h"
 Widget::Widget(QWidget *parent)
@@ -15,21 +15,26 @@ Widget::~Widget()
     makeCurrent();
     glDeleteBuffers(1, &vboVertices);
     glDeleteBuffers(1, &vboIndices);
-    //glDeleteVertexArrays(1, &vao);
+
     glDeleteProgram(shaderProgram);
     doneCurrent();
+    free(model.vertices);
+    free(model.faces);
 }
 
 void Widget::initializeGL()
 {
     initializeOpenGLFunctions();
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glEnable(GL_DEPTH_TEST);
-    //draw_obj("cube.obj");
-    setupShader();
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glEnable(GL_DEPTH_TEST);
+
+        setupShader();
 
 }
-
+Model_data Widget::getModel()const
+{
+    return model;
+}
 void Widget::resizeGL(int w, int h)
 {
     glViewport(0, 0, w, h);
@@ -43,13 +48,15 @@ void Widget::paintGL()
     // Use the shader program
     glUseProgram(shaderProgram);
 
-    // Bind VAO and draw the rectangle
-    //glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
-   // glBindVertexArray(0); // Unbind VAO
 
-    // Optional: Cleanup state
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+
     glUseProgram(0);
+    MainWindow *mainWindow = qobject_cast<MainWindow*>(parentWidget());
+    if (mainWindow && mainWindow->isRecording()) {
+        QImage frame = this->grabFramebuffer().scaled(640, 480);
+        GifWriteFrame(&mainWindow->getGifWriter(), frame.bits(), 640, 480, 10);
+    }
 }
 
 
@@ -60,70 +67,79 @@ void Widget::paintGL()
 void Widget::draw_obj(const char* filename)
 {
 
+    // Считаем количество вершин и граней в файле
+        int vertex_count = count_vertices(filename);
+        int face_count = count_faces(filename);
 
-    // Считаем количество вершин в файле
-    int vertex_count =  count_vertices(filename);
-    // Структура для хранения данных модели
-    Model_data model;
-    model.vertex_count = vertex_count;
+        // Структура для хранения данных модели
+        model.vertex_count = vertex_count;
+        model.face_count = face_count;
 
-    // Чтение данных из файла cube.obj
-    read_obj_file(filename, &model);
+        // Чтение данных из файла .obj
+        read_obj_file(filename, &model);
+        // Преобразование данных модели в формат, пригодный для OpenGL
+        std::vector<float> vertices;
+        for (int i = 0; i < model.vertex_count; ++i) {
+            vertices.push_back(model.vertices[i].x);
+            vertices.push_back(model.vertices[i].y);
+            vertices.push_back(model.vertices[i].z);
+        }
 
-    // Преобразование данных модели в формат, пригодный для OpenGL
+        // Индексы вершин для отрисовки объекта
+        std::vector<unsigned int> indices;
+        for (int i = 0; i < model.face_count; ++i) {
+            indices.push_back(model.faces[i].v1);
+            indices.push_back(model.faces[i].v2);
+            indices.push_back(model.faces[i].v3);
+        }
+
+
+
+        // Генерация и заполнение буфера вершин
+        glGenBuffers(1, &vboVertices);
+        glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+        // Установка указателей на атрибуты вершин
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        // Генерация и заполнение индексного буфера
+        glGenBuffers(1, &vboIndices);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+        numIndices = indices.size();  // Число индексов в объекте
+
+
+}
+void Widget::draw(Model_data model)
+{
     std::vector<float> vertices;
     for (int i = 0; i < model.vertex_count; ++i) {
         vertices.push_back(model.vertices[i].x);
         vertices.push_back(model.vertices[i].y);
         vertices.push_back(model.vertices[i].z);
-
     }
-printf("suceful\n");
-    free(model.vertices);
 
-    // Индексы вершин для отрисовки куба (оставляем без изменений)
-    std::vector<unsigned int> indices = {
-        0, 1, 2,
-        2, 3, 0,
-        4, 5, 6,
-        6, 7, 4,
-        0, 4, 7,
-        7, 3, 0,
-        1, 5, 6,
-        6, 2, 1,
-        0, 1, 5,
-        5, 4, 0,
-        2, 3, 7,
-        7, 6, 2
-    };
+    std::vector<unsigned int> indices;
+    for (int i = 0; i < model.face_count; ++i) {
+        indices.push_back(model.faces[i].v1);
+        indices.push_back(model.faces[i].v2);
+        indices.push_back(model.faces[i].v3);
+    }
 
-    // Генерация и привязка VAO
-    // glGenVertexArrays(1, &vao);
-    // glBindVertexArray(vao);
-
-    // Генерация и заполнение буфера вершин
     glGenBuffers(1, &vboVertices);
     glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-    // Установка указателей на атрибуты вершин
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-
-//    // Генерация и заполнение индексного буфера
     glGenBuffers(1, &vboIndices);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-//    // Отвязка VAO
-   // glBindVertexArray(0);
-    numIndices=indices.size();// Число индексов в кубе
-
-
-
+    numIndices = indices.size();
 }
-
 
 void Widget::setupShader()
 {
@@ -218,6 +234,7 @@ void Widget::setupShader()
 
 void Widget::clearCanvas()
 {
-
-    initializeGL();
+    makeCurrent();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    doneCurrent();
 }
