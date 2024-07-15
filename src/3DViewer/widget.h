@@ -6,6 +6,7 @@ extern "C" {
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include<QColor>
 #include <vector>
 class Widget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -14,20 +15,33 @@ class Widget : public QOpenGLWidget, protected QOpenGLFunctions
 public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
+
     void draw_obj(const char * filename);
-    void draw(Model_data model);
+    void draw(object_t model);
     void setupShader();
     void clearCanvas();
-    Model_data getModel()const;
+    object_t getModel()const;
+public slots:
+    void setProjectionType(const QString &type);
+    void setVertexColor(const QColor &color);
+    void setEdgeColor(const QColor &color);
+    void setModelColor(const QColor &color);
+    void setBackgroundColor(const QColor &color);
+    void setEdgeType(const QString &type);
+    void setEdgeWidth(int width);
+    void setVertexSize(int size);
+    void setVertexShape(const QString &shape);
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
     void paintGL() override;
 
-
+    void initializeVertices();
+    void initializeEdges();
+    void initializeVerticesAndEdges();
 private:
 
-    Model_data model;
+    object_t model;
 
     GLuint vao;
     GLuint vboVertices;
@@ -35,6 +49,21 @@ GLuint vboTexCoords;
     GLuint vboIndices;
     GLuint shaderProgram;
     int numIndices;
+
+    QColor modelColor;
+    QColor backgroundColor;
+    QColor vertexColor;
+    QColor faceColor;
+    QColor edgeColor;
+    QString projectionType;
+    QString edgeType;
+    QString vertexShape;
+    int edgeWidth;
+    int vertexSize;
+    void setupProjectionMatrix();
+    void drawEdges();
+    void drawVertices();
+    void setShaderColor(const QColor &color);
 };
 
 #endif // WIDGET_H

@@ -1,5 +1,5 @@
 QT       += core gui opengl 
-
+include(3rdparty/src/gifimage/qtgifimage.pri)
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -10,21 +10,16 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    obj_parcer.c \
     widget.cpp \
-    affine.c \
-    gif.cpp
-
+    mainwindow.cpp \
+    transformations.c \
+    parsing.c
 HEADERS += \
-    gif.h \
-    mainwindow.h \
-    obj_model.h \
     obj_parcer.h \
-    widget.h
+    widget.h \
+    mainwindow.h
 
-FORMS += \
-    mainwindow.ui
+FORMS += mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

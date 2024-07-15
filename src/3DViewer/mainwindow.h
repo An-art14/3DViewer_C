@@ -1,10 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include <gif.h>
 #include <QMainWindow>
+#include<QColorDialog>
+#include <QSettings>
+#include<QTimer>
+#include<cmath>
+#include<stdlib.h>
 extern "C" {
 #include "obj_parcer.h"
 }
+#include <qgifimage.h>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -17,8 +22,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     bool isRecording() const ;
-    GifWriter& getGifWriter();
 private slots:
+      void gif_timer();
+
     void on_FileButton_clicked();
 
 
@@ -54,14 +60,72 @@ private slots:
 
     void on_GifButton_clicked();
 
+    void on_pushButton_clicked();
+
+    void on_ModelColorButton_clicked();
+
+    void on_perspectiveRadioButton_clicked(bool checked);
+
+    void on_VertexColorButton_clicked();
+
+    void on_FadeColorButton_clicked();
+
+    void on_dottedRadioButton_clicked(bool checked);
+
+
+    void on_LineWidthSlider_valueChanged(int value);
+
+    void on_PointSizeSlider_valueChanged(int value);
+
+    void on_EmptyRadioButton_toggled(bool checked);
+
+    void on_CircleRadioButton_toggled(bool checked);
+
+    void on_SquareRadioButton_toggled(bool checked);
+
+    void on_SolidRadioButton_toggled(bool checked);
+
+    void on_ParralelRadioButton_clicked(bool checked);
+
+
+
 private:
+    struct TransformValues {
+        int xTranslation;
+        int yTranslation;
+        int zTranslation;
+        int xRotation;
+        int yRotation;
+        int zRotation;
+        double scale;
+    };
+
+    TransformValues currentValues = {0, 0, 0, 0, 0, 0, 1.0};
     Ui::MainWindow *ui;
-    Model_data model;
-    void draw();
+    object_t model;
     void transformAndDraw();
     bool recording;
-    GifWriter gifWriter;
+    bool gifStart = 0, vertex = 1;
+    int gifTime = 0;
+    QGifImage *gifOut;
+    QTimer *gifTimer;
+    QColor modelColor;
     void startRecording();
     void stopRecording();
+    void setColor(bool background, float r, float g, float b);
+    QSettings settings;
+    void saveSettings();
+    void loadSettings();
+    void initPanel();
+    // Customization settings
+    QColor edgeColor;
+    QColor vertexColor;
+    QColor faceColor;
+    int edgeWidth;
+    int vertexSize;
+    QString projectionType;
+    QString edgeType;
+    QString vertexShape;
+    QColor backgroundColor;
 };
 #endif // MAINWINDOW_H

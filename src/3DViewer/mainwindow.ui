@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>959</width>
-    <height>600</height>
+    <height>682</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>10</x>
       <y>0</y>
       <width>531</width>
-      <height>571</height>
+      <height>631</height>
      </rect>
     </property>
    </widget>
@@ -30,7 +30,7 @@
       <x>550</x>
       <y>0</y>
       <width>401</width>
-      <height>551</height>
+      <height>631</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -48,7 +48,7 @@
          <item>
           <widget class="QPushButton" name="GifButton">
            <property name="text">
-            <string>Gif</string>
+            <string>Start GIF Recording</string>
            </property>
           </widget>
          </item>
@@ -64,7 +64,7 @@
        <item>
         <widget class="QLabel" name="PathLabel">
          <property name="text">
-          <string>File: src/bac.c</string>
+          <string>File: </string>
          </property>
         </widget>
        </item>
@@ -359,35 +359,154 @@
       </layout>
      </item>
      <item>
-      <layout class="QGridLayout" name="gridLayout" columnminimumwidth="0">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetMaximumSize</enum>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>GroupBox</string>
        </property>
-       <item row="3" column="0">
-        <widget class="QRadioButton" name="radioButton_3">
+       <widget class="QRadioButton" name="EmptyRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>397</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Empty</string>
+        </property>
+        <property name="autoExclusive">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="CircleRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>397</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Circle</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="SquareRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>190</x>
+          <y>30</y>
+          <width>397</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Square</string>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>Line</string>
+       </property>
+       <widget class="QRadioButton" name="dottedRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>196</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Dotted line</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="SolidRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>30</y>
+          <width>397</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Solid line</string>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>View</string>
+       </property>
+       <widget class="QRadioButton" name="perspectiveRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>129</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Perspective</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="ParralelRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>30</y>
+          <width>195</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Parralel</string>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="label">
          <property name="text">
-          <string>RadioButton</string>
+          <string>Color</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QRadioButton" name="radioButton">
+       <item>
+        <widget class="QPushButton" name="FadeColorButton">
          <property name="text">
-          <string>RadioButton</string>
+          <string>Edge</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QRadioButton" name="radioButton_4">
+       <item>
+        <widget class="QPushButton" name="VertexColorButton">
          <property name="text">
-          <string>RadioButton</string>
+          <string>Vertex</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QRadioButton" name="radioButton_2">
+       <item>
+        <widget class="QPushButton" name="pushButton">
          <property name="text">
-          <string>RadioButton</string>
+          <string>Background</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ModelColorButton">
+         <property name="text">
+          <string>Model</string>
          </property>
         </widget>
        </item>

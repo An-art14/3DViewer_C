@@ -1,27 +1,54 @@
 #pragma once
-#ifndef OBJ_PARCER_H
-#define OBJ_PARCER_H
+#ifndef __HEADER_H
+#define __HEADER_H
+//#define _GNU_SOURCE
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <math.h>
-#include "obj_model.h"
 
-int count_vertices(const char *filename) ;
-int count_faces(const char *filename) ;
-float parse_float_number(char* str);
-Vertex parse_vertex(char* str);
-Face parse_face(char* str);
-void read_obj_file(const char *filename, Model_data *model);
+#define LENGTH 256
 
-void move_x(Model_data* obj, float value);
-void move_y(Model_data* obj, float value);
-void move_z(Model_data* obj, float value);
-void rotate_x(Model_data* obj, float angle);
-void rotate_y(Model_data* obj, float angle);
-void rotate_z(Model_data* obj, float angle);
-void scale(Model_data* obj, float ratio);
+typedef enum { OK, ERROR, } return_code;
 
+typedef struct {
+    unsigned *vertex_indices;
+    int num_indices_in_face;
+} face_t;
 
-#endif // OBJ_PARCER_H
+typedef struct {
+    double x, y, z;
+} vertex_t;
+
+typedef struct {
+    int num_vertices;
+    int num_faces;
+    int line_num;
+    face_t *faces;
+    vertex_t *points;
+} object_t;
+
+int create_obj(object_t *obj);
+int add_vertex_to_obj(object_t *obj, double *coord);
+int add_face_to_obj(object_t *obj, unsigned *indices, int num_indices);
+int write_coord_vertex(char *line, object_t *obj);
+int write_ind_vertices(char *line, object_t *obj);
+void clean_obj(object_t *obj);
+int parse_obj_file(const char *filename, object_t *obj);
+int is_digit(char c);
+int allocate_vertices(object_t *obj, int num_vertices) ;
+int allocate_faces(object_t *obj, int num_faces) ;
+int count_vertices(FILE *file) ;
+int count_faces(FILE *file);
+int move_x(object_t *obj, double value);
+int move_y(object_t *obj, double value);
+int move_z(object_t *obj, double value);
+int rotate_x(object_t *obj, double value);
+int rotate_y(object_t *obj, double value);
+int rotate_z(object_t *obj, double value);
+int scale(object_t *obj, double value);
+int find_min_max_coords(object_t *obj, double *min_x, double *max_x, double *min_y, double *max_y, double *min_z, double *max_z);
+
+#endif //__HEADER_H

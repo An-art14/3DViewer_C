@@ -4,9 +4,20 @@
 #include <QDebug>
 #include"mainwindow.h"
 #include<math.h>
-#include "obj_parcer.h"
+
 Widget::Widget(QWidget *parent)
     : QOpenGLWidget(parent)
+    ,
+      modelColor(Qt::black),
+      backgroundColor(Qt::white),
+      vertexColor(Qt::black),
+      faceColor(Qt::black),
+      edgeColor(Qt::black),
+      projectionType("Parallel"),
+      edgeType("Solid"),
+      vertexShape("None"),
+      edgeWidth(1),
+      vertexSize(1)
 {
 }
 
@@ -18,20 +29,27 @@ Widget::~Widget()
 
     glDeleteProgram(shaderProgram);
     doneCurrent();
-    free(model.vertices);
-    free(model.faces);
-}
 
+}
 void Widget::initializeGL()
 {
     initializeOpenGLFunctions();
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_LINE_SMOOTH);
+    setupShader();
+    initializeVerticesAndEdges();
 
-        setupShader();
 
 }
-Model_data Widget::getModel()const
+void Widget::initializeVerticesAndEdges()
+{
+    glGenBuffers(1, &vboVertices);
+       glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+       glBufferData(GL_ARRAY_BUFFER, model.num_vertices * sizeof(vertex_t), model.points, GL_STATIC_DRAW);
+
+}
+object_t Widget::getModel()const
 {
     return model;
 }
@@ -42,23 +60,108 @@ void Widget::resizeGL(int w, int h)
 
 void Widget::paintGL()
 {
-    // Clear the screen
+    glClearColor(backgroundColor.redF(), backgroundColor.greenF(), backgroundColor.blueF(), 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Use the shader program
-    glUseProgram(shaderProgram);
+    if (model.num_vertices != 0) {
+        glUseProgram(shaderProgram);
+        setupProjectionMatrix();
+        //setShaderColor(modelColor);
+        drawEdges();
+        drawVertices();
 
-
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
-
-    glUseProgram(0);
-    MainWindow *mainWindow = qobject_cast<MainWindow*>(parentWidget());
-    if (mainWindow && mainWindow->isRecording()) {
-        QImage frame = this->grabFramebuffer().scaled(640, 480);
-        GifWriteFrame(&mainWindow->getGifWriter(), frame.bits(), 640, 480, 10);
+        glUseProgram(0);
     }
 }
+void Widget::setShaderColor(const QColor &color)
+{
+    GLint colorLocation = glGetUniformLocation(shaderProgram, "u_Color");
+    if (colorLocation != -1) {
+        glUniform4f(colorLocation, color.redF(), color.greenF(), color.blueF(), 1.0f);
+    } else {
+        qDebug() << "ERROR::SHADER::UNIFORM::COLOR_LOCATION_NOT_FOUND";
+    }
+}
+void Widget::setupProjectionMatrix() {
+    QMatrix4x4 projectionMatrix;
+    if (projectionType == "Perspective") {
+        projectionMatrix.perspective(45.0f, static_cast<float>(width()) / static_cast<float>(height()), 0.1f, 100.0f);
+    } else {
+        projectionMatrix.ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+    }
 
+    GLint mvpLocation = glGetUniformLocation(shaderProgram, "u_MVP");
+    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, projectionMatrix.constData());
+
+    QMatrix4x4 modelViewMatrix;
+    modelViewMatrix.setToIdentity();
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "u_ModelView"), 1, GL_FALSE, modelViewMatrix.constData());
+    glUniform4f(glGetUniformLocation(shaderProgram, "u_Color"), modelColor.redF(), modelColor.greenF(), modelColor.blueF(), 1.0f);
+    glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+    glDisableVertexAttribArray(0);
+}
+
+void Widget::drawEdges() {
+    glUniform4f(glGetUniformLocation(shaderProgram, "u_Color"), edgeColor.redF(), edgeColor.greenF(), edgeColor.blueF(), 1.0f);
+    glLineWidth(edgeWidth);
+    if (edgeType == "Dashed") {
+        glEnable(GL_LINE_STIPPLE);
+        glLineStipple(1, 0x00FF);
+    } else {
+        glDisable(GL_LINE_STIPPLE);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
+    glDisableVertexAttribArray(0);
+
+    glBegin(GL_LINES);
+    for (int i = 0; i < model.num_faces; ++i) {
+        const face_t& face = model.faces[i];
+        if (model.points != NULL && face.num_indices_in_face != 0) {
+            const vertex_t& v1 = model.points[face.vertex_indices[0]];
+            const vertex_t& v2 = model.points[face.vertex_indices[1]];
+            const vertex_t& v3 = model.points[face.vertex_indices[2]];
+            glVertex3f(v1.x, v1.y, v1.z);
+            glVertex3f(v2.x, v2.y, v2.z);
+            glVertex3f(v2.x, v2.y, v2.z);
+            glVertex3f(v3.x, v3.y, v3.z);
+            glVertex3f(v3.x, v3.y, v3.z);
+            glVertex3f(v1.x, v1.y, v1.z);
+        }
+    }
+    glEnd();
+    glDisable(GL_LINE_STIPPLE);
+}
+
+void Widget::drawVertices() {
+    glUniform4f(glGetUniformLocation(shaderProgram, "u_Color"), vertexColor.redF(), vertexColor.greenF(), vertexColor.blueF(), 1.0f);
+    if (vertexShape == "Circle") {
+        glPointSize(vertexSize);
+        glBegin(GL_POINTS);
+        for (int i = 0; i < model.num_vertices; ++i) {
+            const vertex_t& vertex = model.points[i];
+            glVertex3f(vertex.x, vertex.y, vertex.z);
+        }
+        glEnd();
+    } else if (vertexShape == "Square") {
+        glBegin(GL_QUADS);
+        for (int i = 0; i < model.num_vertices; ++i) {
+            const vertex_t& vertex = model.points[i];
+            float halfSize = vertexSize * 0.005f;
+            glVertex3f(vertex.x - halfSize, vertex.y - halfSize, vertex.z);
+            glVertex3f(vertex.x + halfSize, vertex.y - halfSize, vertex.z);
+            glVertex3f(vertex.x + halfSize, vertex.y + halfSize, vertex.z);
+            glVertex3f(vertex.x - halfSize, vertex.y + halfSize, vertex.z);
+        }
+        glEnd();
+    }
+}
 
 
 
@@ -67,66 +170,58 @@ void Widget::paintGL()
 void Widget::draw_obj(const char* filename)
 {
 
-    // Считаем количество вершин и граней в файле
-        int vertex_count = count_vertices(filename);
-        int face_count = count_faces(filename);
 
-        // Структура для хранения данных модели
-        model.vertex_count = vertex_count;
-        model.face_count = face_count;
+        parse_obj_file(filename, &model);
 
-        // Чтение данных из файла .obj
-        read_obj_file(filename, &model);
-        // Преобразование данных модели в формат, пригодный для OpenGL
         std::vector<float> vertices;
-        for (int i = 0; i < model.vertex_count; ++i) {
-            vertices.push_back(model.vertices[i].x);
-            vertices.push_back(model.vertices[i].y);
-            vertices.push_back(model.vertices[i].z);
+        for (int i = 0; i < model.num_vertices; ++i) {
+            vertices.push_back(model.points[i].x);
+            vertices.push_back(model.points[i].y);
+            vertices.push_back(model.points[i].z);
         }
 
-        // Индексы вершин для отрисовки объекта
         std::vector<unsigned int> indices;
-        for (int i = 0; i < model.face_count; ++i) {
-            indices.push_back(model.faces[i].v1);
-            indices.push_back(model.faces[i].v2);
-            indices.push_back(model.faces[i].v3);
+        for (int i = 0; i < model.num_faces; ++i) {
+            for(int j=0;j<model.faces[i].num_indices_in_face;j++)
+        {indices.push_back(model.faces[i].vertex_indices[j]);
+            }
+
         }
 
 
-
-        // Генерация и заполнение буфера вершин
         glGenBuffers(1, &vboVertices);
         glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
-        // Установка указателей на атрибуты вершин
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
-        // Генерация и заполнение индексного буфера
+
         glGenBuffers(1, &vboIndices);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-        numIndices = indices.size();  // Число индексов в объекте
+        numIndices = indices.size();
 
 
 }
-void Widget::draw(Model_data model)
+void Widget::draw(object_t model)
 {
+    this->model = model;
+    update();
     std::vector<float> vertices;
-    for (int i = 0; i < model.vertex_count; ++i) {
-        vertices.push_back(model.vertices[i].x);
-        vertices.push_back(model.vertices[i].y);
-        vertices.push_back(model.vertices[i].z);
+    for (int i = 0; i < model.num_vertices; ++i) {
+        vertices.push_back(model.points[i].x);
+        vertices.push_back(model.points[i].y);
+        vertices.push_back(model.points[i].z);
     }
 
     std::vector<unsigned int> indices;
-    for (int i = 0; i < model.face_count; ++i) {
-        indices.push_back(model.faces[i].v1);
-        indices.push_back(model.faces[i].v2);
-        indices.push_back(model.faces[i].v3);
+    for (int i = 0; i < model.num_faces; ++i) {
+        for(int j=0;j<model.faces[i].num_indices_in_face;j++)
+    {
+                indices.push_back(model.faces[i].vertex_indices[j]);
+        }
     }
 
     glGenBuffers(1, &vboVertices);
@@ -147,25 +242,19 @@ void Widget::setupShader()
     const char* vertexShaderSource = R"(
         #version 330 core
         layout (location = 0) in vec3 position;
-        out vec4 fragColor;
-
         uniform mat4 u_MVP;
-        uniform vec4 u_Color;
-
         void main(void) {
             gl_Position = u_MVP * vec4(position, 1.0);
-            fragColor = u_Color;
         }
     )";
 
     // Fragment shader source code
     const char* fragmentShaderSource = R"(
         #version 330 core
-        in vec4 fragColor;
-        out vec4 color;
-
+        out vec4 fragColor;
+        uniform vec4 u_Color;
         void main(void) {
-            color = fragColor;
+            fragColor = u_Color;
         }
     )";
 
@@ -231,10 +320,61 @@ void Widget::setupShader()
         qDebug() << "ERROR::SHADER::UNIFORM::MVP_LOCATION_NOT_FOUND";
     }
 }
+void Widget::setProjectionType(const QString &type)
+{
+    projectionType = type;
+    update(); // Ensure the widget is repainted
+}
 
+void Widget::setVertexColor(const QColor &color)
+{
+    vertexColor = color;
+    update(); // Ensure the widget is repainted
+}
+
+void Widget::setEdgeColor(const QColor &color)
+{
+    edgeColor = color;
+    update(); // Ensure the widget is repainted
+}
+
+void Widget::setEdgeType(const QString &type)
+{
+    edgeType = type;
+    update(); // Ensure the widget is repainted
+}
+
+void Widget::setEdgeWidth(int width)
+{
+    edgeWidth = width;
+    update(); // Ensure the widget is repainted
+}
+
+void Widget::setVertexSize(int size)
+{
+    vertexSize = size;
+    update(); // Ensure the widget is repainted
+}
+
+void Widget::setVertexShape(const QString &shape)
+{
+    vertexShape = shape;
+    update(); // Ensure the widget is repainted
+}
 void Widget::clearCanvas()
 {
     makeCurrent();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     doneCurrent();
 }
+void Widget::setBackgroundColor(const QColor &color)
+{
+    backgroundColor = color;
+    update(); // Ensure the widget is repainted
+}
+void Widget::setModelColor(const QColor &color)
+{
+    modelColor = color;
+    update(); // Ensure the widget is repainted
+}
+
