@@ -1,4 +1,11 @@
-QT       += core gui opengl 
+macx {  
+    QT       += core gui openglwidgets
+    LIBS     += -framework GLUT -framework OpenGL -framework Cocoa
+} else {
+    QT       += core gui opengl
+    LIBS     += -lOpenGL -lGLU -lglut
+}
+
 include(3rdparty/src/gifimage/qtgifimage.pri)
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
