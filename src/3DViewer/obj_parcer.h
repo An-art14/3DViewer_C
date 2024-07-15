@@ -49,6 +49,8 @@ int rotate_x(object_t *obj, double value);
 int rotate_y(object_t *obj, double value);
 int rotate_z(object_t *obj, double value);
 int scale(object_t *obj, double value);
+float parse_float_number(char* str) ;
+vertex_t parse_vertex(char* str);
 int find_min_max_coords(object_t *obj, double *min_x, double *max_x, double *min_y, double *max_y, double *min_z, double *max_z);
 
 #endif //__HEADER_H

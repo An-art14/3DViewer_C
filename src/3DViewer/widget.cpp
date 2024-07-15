@@ -64,24 +64,16 @@ void Widget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (model.num_vertices != 0) {
+
         glUseProgram(shaderProgram);
         setupProjectionMatrix();
-        //setShaderColor(modelColor);
         drawEdges();
         drawVertices();
 
         glUseProgram(0);
     }
 }
-void Widget::setShaderColor(const QColor &color)
-{
-    GLint colorLocation = glGetUniformLocation(shaderProgram, "u_Color");
-    if (colorLocation != -1) {
-        glUniform4f(colorLocation, color.redF(), color.greenF(), color.blueF(), 1.0f);
-    } else {
-        qDebug() << "ERROR::SHADER::UNIFORM::COLOR_LOCATION_NOT_FOUND";
-    }
-}
+
 void Widget::setupProjectionMatrix() {
     QMatrix4x4 projectionMatrix;
     if (projectionType == "Perspective") {
@@ -102,6 +94,7 @@ void Widget::setupProjectionMatrix() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
     glDisableVertexAttribArray(0);
+
 }
 
 void Widget::drawEdges() {

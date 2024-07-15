@@ -33,20 +33,66 @@ int add_face_to_obj(object_t *obj, unsigned *indices, int num_indices) {
 
     return OK;
 }
+float parse_float_number(char* str) {
+    float result = 0;
+    int number_whole = 0, number_fraction = 0, count_fraction_digits = 0;
+    char *tmp = str;
+    int is_point = 0;
+    int is_negative_number = 0;
+
+    while (*tmp != ' ' && *tmp != '\0' && *tmp != '\n') {
+        if (*tmp >= '0' && *tmp <= '9') {
+            if (is_point) {
+                number_fraction = number_fraction * 10 + (*tmp - '0');
+                count_fraction_digits++;
+            } else {
+                number_whole = number_whole * 10 + (*tmp - '0');
+            }
+        } else if (*tmp == '.') {
+            is_point = 1;
+        } else if (*tmp == '-') {
+            is_negative_number = 1;
+        }
+        tmp++;
+    }
+
+    result = (float)number_whole;
+    if (count_fraction_digits > 0) {
+        result += number_fraction / pow(10, count_fraction_digits);
+    }
+    if (is_negative_number) {
+        result *= -1;
+    }
+
+    return result;
+}
+
+
+vertex_t parse_vertex(char* str) {
+    vertex_t result;
+    char *token;
+     token = strtok(str, "v ");
+    if (token != NULL) {
+        result.x = parse_float_number(token);
+        token = strtok(NULL, " ");
+    }
+    if (token != NULL) {
+        result.y = parse_float_number(token);
+        token = strtok(NULL, " ");
+    }
+    if (token != NULL) {
+        result.z = parse_float_number(token);
+    }
+    return result;
+}
 
 int write_coord_vertex(char *line, object_t *obj) {
     int code = OK;
-    double x = 0.0, y = 0.0, z = 0.0;
-    if (sscanf(line, "v %lf %lf %lf", &x, &y, &z) == 3) {
-        double coord[3] = {x, y, z};
-        code = add_vertex_to_obj(obj, coord);
-        if (code != OK) {
-            return ERROR;
-        }
-    }
+    vertex_t vertex = parse_vertex(line + 2); // пропускаем "v "
+    double coord[3] = {vertex.x, vertex.y, vertex.z};
+    code = add_vertex_to_obj(obj, coord);
     return code;
 }
-
 int is_digit(char c) {
     return isdigit(c);
 }

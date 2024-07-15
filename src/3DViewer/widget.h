@@ -63,7 +63,7 @@ GLuint vboTexCoords;
     void setupProjectionMatrix();
     void drawEdges();
     void drawVertices();
-    void setShaderColor(const QColor &color);
+
 };
 
 #endif // WIDGET_H
