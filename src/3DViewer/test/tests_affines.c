@@ -1,6 +1,6 @@
 #include <check.h>
 #include <math.h>
-#include "obj_parcer.h"
+#include "../obj_parcer.h"
 
 #define EPS 1e-6
 

@@ -7,18 +7,24 @@ EXCLUDE = --exclude '/usr/*' --exclude '$(TESTS)/*'
 UNAME = $(shell uname -s)
 
 ifeq ($(UNAME), Linux)
-	LIB = -lcheck -lsubunit -lm
+    LIB = -lcheck -lsubunit -lm
 else
-	LIB = -lcheck
+    LIB = -lcheck
 endif
 
 # Folders
-TESTS = tests
+TESTS = test
 REPORT = report
 GCOV = gcov
 OBJ = obj
 DEST_DIR = s21_viewer
+QMAKE = qmake
+MAKE = make
+
+# Folders
 SRC_DIR = 3DViewer
+BUILD_DIR = 3DViewer/s21_viewer
+TEST_DIR = 3DViewer/tests
 
 # Executable files
 S21_TEST = $(DEST_DIR)/s21_test
@@ -29,8 +35,13 @@ SRC_NOTATION = $(SRC_DIR)/*.c
 OBJ_NOTATION = $(OBJ)/*.o
 LIB_NOTATION = $(DEST_DIR)/s21_lib.a
 
-# Source test files
-SRC_TEST = $(TESTS)/*.c
+# Executable files
+EXECUTABLE = 3DViewer
+TEST_EXECUTABLE = s21_test
+
+# Source files
+SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
+TEST_FILES = $(wildcard $(TEST_DIR)/*.c)
 
 INST_DIR=$(DEST_DIR)
 DIST_DIR=$(DEST_DIR)-1.0
@@ -46,7 +57,7 @@ $(LIB_NOTATION) :
 	ranlib $(LIB_NOTATION)
 	mv *.o $(OBJ)
 
-test : $(LIB_NOTATION)
+tests : $(LIB_NOTATION)
 	$(CFLAGS) $(SRC_TEST) $(LIB_NOTATION) -o $(S21_TEST) $(LIB)
 	./$(S21_TEST)
 
@@ -66,29 +77,24 @@ open :
 style :
 	cp ../materials/linters/.clang-format .
 	clang-format -n $(SRC_DIR)/*.c $(SRC_DIR)/*.h $(TESTS)/*
-	
+
 uninstall:
-	rm -r $(INST_DIR)
-	
+	rm -r $(BUILD_DIR)
+
 install:
-	mkdir -p $(INST_DIR)
-	cd $(INST_DIR)
-	qmake ../$(SRC_DIR)/3DViewer.pro
-	make
-	make clean
-	open 3DViewer.app
-	
+	mkdir -p $(BUILD_DIR)
+	cd $(BUILD_DIR) && $(QMAKE) ../3DViewer.pro && $(MAKE)
+	open ./3DViewer/s21_viewer
+
 dist:
 	mkdir -p $(DIST_DIR)
-	mkdir -p $(DIST_DIR)/qt
-	cp $(SRC_DIR)/*.c $(SRC_DIR)/*.h $(DIST_DIR)
-	cp -R $(SRC_DIR)/qt $(DIST_DIR)
+	cp -R $(SRC_DIR) $(DIST_DIR)
 	tar --totals -cvf $(DIST_DIR).tar $(DIST_DIR)
 	rm -rf $(DIST_DIR)
-	
+
 dvi:
 	makeinfo manual.texi --html
-	open ./manual/index.html 
+	open ./manual/index.html
 
 leaks :
 	CK_FORK=no leaks -atExit -q -- ./$(S21_TEST)
@@ -97,15 +103,14 @@ valgrind :
 	CK_FORK=no valgrind  --track-origins=yes --tool=memcheck --leak-check=yes --show-leak-kinds=all ./$(S21_TEST)
 
 clean :
-	rm -rf $(S21_TEST) $(S21_GCOV) $(REPORT) $(OBJ) $(GCOV) *.{a,o,gc*,out,dSYM} .clang-format $(DIST_DIR).tar $(INST_DIR)
-	rm -rf s21_notation.a *.tar manual
+	rm -rf $(S21_TEST) $(S21_GCOV) $(REPORT) $(OBJ) $(GCOV) *.{a,o,gc*,out,dSYM} .clang-format $(DIST_DIR).tar $(BUILD_DIR)
+	rm -rf  *.tar manual
 
 rebuild :
 	make clean
 	make all
-	
+
 cppcheck:
 	cppcheck --std=c11 --enable=all --suppress=missingIncludeSystem  --suppress=unusedFunction --suppress=invalidPointerCast ./
-
 
 .PHONY : all clean rebuild $(LIB_NOTATION) test dvi dist gcov_report open style leaks valgrind
