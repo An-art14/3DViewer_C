@@ -88,7 +88,7 @@ int  rotate_z(object_t *obj, double angle) {
     return code;
 }
 
-int  find_min_max_coords(object_t *obj, double *min_x, double *max_x, double *min_y, double *max_y, double *min_z, double *max_z) {
+/*int  find_min_max_coords(object_t *obj, double *min_x, double *max_x, double *min_y, double *max_y, double *min_z, double *max_z) {
     int code = OK;
     if (obj == NULL) {
         code = ERROR;
@@ -116,4 +116,4 @@ int  find_min_max_coords(object_t *obj, double *min_x, double *max_x, double *mi
     }
 
     return code;
-}
+}*/

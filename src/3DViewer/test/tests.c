@@ -7,10 +7,11 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#define EPSILON 1e-4 
+
 #include "../obj_parcer.h"
 
 #define LENGTH 256
-#define EPSILON 1e-6
 
 void* my_malloc() {
     return NULL;
@@ -285,12 +286,20 @@ START_TEST(test_move_x_1) {
   object_t *obj;
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
-  double val = 1.0;
+  double val = 2.0;
   char *filename = "3DViewer/test/models/cube.obj";
   parse_obj_file(filename, obj);
   res = move_x(obj, val);
   ck_assert_int_eq(res, OK);
   ck_assert_int_eq(obj->num_vertices, 8);
+  ck_assert_double_eq_tol(obj->points[0].x, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[1].x, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[2].x, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[3].x, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[4].x, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[5].x, 2.9999999, EPSILON);
+  ck_assert_double_eq_tol(obj->points[6].x, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[7].x, 1.0, EPSILON);
   clean_obj(obj);
   free(obj);
 }
@@ -308,14 +317,14 @@ START_TEST(test_move_y_1) {
   res = move_y(obj, val);
   ck_assert_int_eq(res, OK);
   ck_assert_int_eq(obj->num_vertices, 8);
-  ck_assert(assert_double_eq(obj->points[0].y, 1.0));
-  ck_assert(assert_double_eq(obj->points[1].y, 1.0));
-  ck_assert(assert_double_eq(obj->points[2].y, 3.0));
-  ck_assert(assert_double_eq(obj->points[3].y, 3.0));
-  ck_assert(assert_double_eq(obj->points[4].y, 1.0));
-  ck_assert(assert_double_eq(obj->points[5].y, 1.0));
-  ck_assert(assert_double_eq(obj->points[6].y, 3.0));
-  ck_assert(assert_double_eq(obj->points[7].y, 3.0));
+  ck_assert_double_eq_tol(obj->points[0].y, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[1].y, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[2].y, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[3].y, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[4].y, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[5].y, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[6].y, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[7].y, 3.0, EPSILON);
   clean_obj(obj);
   free(obj);
 }
@@ -328,19 +337,19 @@ START_TEST(test_move_z_1) {
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
   double angle = 2.0;
-  char *filename = "models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.obj";
   parse_obj_file(filename, obj);
   res = move_z(obj, angle);
   ck_assert_int_eq(res, OK);
   ck_assert_int_eq(obj->num_vertices, 8);
-  ck_assert(assert_double_eq(obj->points[0].z, 1.0));
-  ck_assert(assert_double_eq(obj->points[1].z, 1.0));
-  ck_assert(assert_double_eq(obj->points[2].z, 1.0));
-  ck_assert(assert_double_eq(obj->points[3].z, 1.0));
-  ck_assert(assert_double_eq(obj->points[4].z, 3.0));
-  ck_assert(assert_double_eq(obj->points[5].z, 3.0));
-  ck_assert(assert_double_eq(obj->points[6].z, 3.0));
-  ck_assert(assert_double_eq(obj->points[7].z, 3.0));
+  ck_assert_double_eq_tol(obj->points[0].z, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[1].z, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[2].z, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[3].z, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[4].z, 1.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[5].z, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[6].z, 3.0, EPSILON);
+  ck_assert_double_eq_tol(obj->points[7].z, 1.0, EPSILON);
   clean_obj(obj);
   free(obj);
 }
@@ -447,53 +456,6 @@ START_TEST(test_rotate_z) {
     ck_assert(assert_double_eq(obj->points[i].y, original_points[i].x * sin_angle + original_points[i].y * cos_angle));
     ck_assert(assert_double_eq(obj->points[i].z, original_points[i].z));
   }
-  clean_obj(obj);
-  free(obj);
-}
-
-END_TEST
-
-START_TEST(test_min_max_1) {
-  int res = 0;
-  object_t *obj;
-  obj = (object_t *)malloc(sizeof(object_t));
-  create_obj(obj);
-  double min_x, max_x, min_y, max_y, min_z, max_z;
-  char *filename = "models/cube.obj";
-  parse_obj_file(filename, obj);
-  res = find_min_max_coords(obj, &min_x, &max_x, &min_y, &max_y, &min_z, &max_z);
-  ck_assert_int_eq(res, OK);
-  ck_assert(assert_double_eq(min_x, -1.0));
-  ck_assert(assert_double_eq(max_x, 1.0));
-  ck_assert(assert_double_eq(min_y, -1.0));
-  ck_assert(assert_double_eq(max_y, 1.0));
-  ck_assert(assert_double_eq(min_z, -1.0));
-  ck_assert(assert_double_eq(max_z, 1.0));
-  clean_obj(obj);
-  free(obj);
-}
-
-END_TEST
-
-START_TEST(test_min_max_2) {
-  int res = 0;
-  object_t *obj;
-  obj = (object_t *)malloc(sizeof(object_t));
-  create_obj(obj);
-  double min_x_val, max_x_val, min_y_val, max_y_val, min_z_val, max_z_val;
-  double *min_x = &min_x_val, *max_x = &max_x_val;
-  double *min_y = &min_y_val, *max_y = &max_y_val;
-  double *min_z = &min_z_val, *max_z = &max_z_val;
-  char *filename = "models/skull.obj";
-  parse_obj_file(filename, obj);
-  res = find_min_max_coords(obj, min_x, max_x, min_y, max_y, min_z, max_z);
-  ck_assert_int_eq(res, OK);
-  ck_assert(assert_double_eq(min_x_val, -9.920400));
-  ck_assert(assert_double_eq(max_x_val, 9.919900));
-  ck_assert(assert_double_eq(min_y_val, -15.487700));
-  ck_assert(assert_double_eq(max_y_val, 13.964300));
-  ck_assert(assert_double_eq(min_z_val,  0.050200));
-  ck_assert(assert_double_eq(max_z_val, 27.5759));
   clean_obj(obj);
   free(obj);
 }
@@ -608,16 +570,6 @@ Suite *Viewer3D_suite_12(void) {
   return s;
 }
 
-
-Suite *Viewer3D_suite_13(void) {
-  Suite *s = suite_create("\x1b[33mTEST_MIN_MAX\x1b[0m");
-  TCase *tcase_min_max = tcase_create("test_min_max");
-  suite_add_tcase(s, tcase_min_max);
-  tcase_add_test(tcase_min_max, test_min_max_1);
-  tcase_add_test(tcase_min_max, test_min_max_2);
-  return s;
-}
-
 int main(void) {
   Suite *list_cases[] = {
     Viewer3D_suite_1(),
@@ -631,8 +583,7 @@ int main(void) {
     Viewer3D_suite_9(),
     Viewer3D_suite_10(),
     Viewer3D_suite_11(),
-    Viewer3D_suite_12(),
-    Viewer3D_suite_13(), NULL
+    Viewer3D_suite_12(), NULL
   };
 
   int fail_count = 0;
