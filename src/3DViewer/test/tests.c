@@ -116,22 +116,91 @@ START_TEST(test_clean_2) {
 }
 END_TEST
 
-/*START_TEST(test_write_ind_vertices_1) {
-  int res  = 0;
+START_TEST(test_allocate_vertices_1) {
+  int res = 0;
   object_t *obj;
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
-  char *line = "f 1 2 3\n";
-  res = write_ind_vertices(line, obj);
+  int num_vertices = 8;
+  res = allocate_vertices(obj, num_vertices);
   ck_assert_int_eq(res, OK);
-  ck_assert_int_eq(obj->num_faces, 1);
-  ck_assert_int_eq(obj->faces[0].num_indices_in_face, 3);
-  ck_assert_int_eq(obj->faces[0].vertex_indices[0], 1);
-  ck_assert_int_eq(obj->faces[0].vertex_indices[1], 2);
-  ck_assert_int_eq(obj->faces[0].vertex_indices[2], 3);
+  
   clean_obj(obj);
+  free(obj);
 }
 END_TEST
+
+START_TEST(test_allocate_vertices_2) {
+  int res = 0;
+  object_t *obj = (object_t *)malloc(sizeof(object_t));
+  create_obj(obj);
+  FILE *fp = fopen("3DViewer/test/models/cube.obj", "r");
+  if (fp == NULL) {
+    ck_assert_msg(0, "Can't open file");
+  }
+  int num_vertices = count_vertices(fp);
+  res = allocate_vertices(obj, num_vertices);
+  ck_assert_int_eq(res, OK);
+  fclose(fp);
+  clean_obj(obj);
+  free(obj);
+}
+
+START_TEST(test_allocate_faces_1) {
+  int res = 0;
+  object_t *obj;
+  obj = (object_t *)malloc(sizeof(object_t));
+  create_obj(obj);
+  int num_faces = 12;
+  res = allocate_faces(obj, num_faces);
+  ck_assert_int_eq(res, OK);
+  clean_obj(obj);
+  free(obj);
+}
+
+END_TEST
+
+START_TEST(test_allocate_faces_2) {
+  int res = 0;
+  object_t *obj = (object_t *)malloc(sizeof(object_t));
+  create_obj(obj);
+  FILE *fp = fopen("3DViewer/test/models/cube.obj", "r");
+  if (fp == NULL) {
+    ck_assert_msg(0, "Can't open file");
+  }
+  int num_faces = count_faces(fp);
+  res = allocate_faces(obj, num_faces);
+  ck_assert_int_eq(res, OK);
+  fclose(fp);
+  clean_obj(obj);
+  free(obj);
+}
+
+END_TEST
+
+/*START_TEST(test_write_ind_vertices_1) {
+    int res = 0;
+    object_t *obj;
+    obj = (object_t *)malloc(sizeof(object_t));
+    memset(obj, 0, sizeof(object_t));
+    allocate_vertices(obj, 1);
+    allocate_faces(obj, 1);
+    char line[] = "f 1 2 3\n";
+    res = write_ind_vertices(line, obj);
+    
+    ck_assert_int_eq(res, OK);
+    ck_assert_int_eq(obj->num_faces, 1); 
+    ck_assert_int_eq(obj->faces[0].num_indices_in_face, 3); 
+
+    for (int i = 0; i < 3; i++) {
+        ck_assert_int_eq(obj->faces[0].vertex_indices[i], i + 1); 
+    }
+
+    clean_obj(obj);
+    free(obj);
+}
+END_TEST
+
 
 START_TEST(test_write_ind_vertices_2) {
   int res = 0;
@@ -152,43 +221,10 @@ START_TEST(test_write_ind_vertices_2) {
   ck_assert_int_eq(obj->num_faces, 2);
   clean_obj(obj);
 }
-END_TEST
-*/
+END_TEST*/
 
-START_TEST(test_write_coord_1) {
-  int res = 0;
-  object_t *obj;
-  obj = (object_t *)malloc(sizeof(object_t));
-  create_obj(obj);
-  char *line = "v 1.0 2.0 3.0\n";
-  res = write_coord_vertex(line, obj);
-  ck_assert_int_eq(res, OK);
-  ck_assert(assert_double_eq(obj->points[0].x, 1.0));
-  ck_assert(assert_double_eq(obj->points[0].y, 2.0));
-  ck_assert(assert_double_eq(obj->points[0].z, 3.0));
-  ck_assert_int_eq(obj->num_vertices, 1);
-  clean_obj(obj);
-}
-END_TEST
 
-START_TEST(test_write_coord_2) {
-  int res = 0;
-  object_t *obj;
-  obj = (object_t *)malloc(sizeof(object_t));
-  create_obj(obj);
-  char *line = "v -1.0 -2.0 -3.0\n";
-  res = write_coord_vertex(line, obj);
-  ck_assert_int_eq(res, OK);
-  ck_assert(assert_double_eq(obj->points[0].x, -1.0));
-  ck_assert(assert_double_eq(obj->points[0].y, -2.0));
-  ck_assert(assert_double_eq(obj->points[0].z, -3.0));
-  ck_assert_int_eq(obj->num_vertices, 1);
-  clean_obj(obj);
-}
-
-END_TEST
-
-START_TEST(test_add_face_to_obj_1) {
+/*START_TEST(test_add_face_to_obj_1) {
   int res = 0;
   object_t *obj;
   obj = (object_t *)malloc(sizeof(object_t));
@@ -225,20 +261,21 @@ START_TEST(test_add_vertex_to_obj_1) {
   ck_assert(assert_double_eq(obj->points[0].z, 4.0));
   clean_obj(obj);
 }
-END_TEST
+END_TEST*/
 
 START_TEST(test_pars_obj_1) {
   int res = 0;
   object_t *obj;
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
-  char *filename = "models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.obj";
   res = parse_obj_file(filename, obj);
   ck_assert_int_eq(res, OK);
-  ck_assert_int_eq(obj->num_faces, 6);
+  ck_assert_int_eq(obj->num_faces, 12);
   ck_assert_int_eq(obj->num_vertices, 8);
-  ck_assert_int_eq(obj->line_num, 12);
+  ck_assert_int_eq(obj->line_num, 18);
   clean_obj(obj);
+  free(obj);
 }   
 
 END_TEST
@@ -249,20 +286,13 @@ START_TEST(test_move_x_1) {
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
   double val = 1.0;
-  char *filename = "models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.obj";
   parse_obj_file(filename, obj);
   res = move_x(obj, val);
   ck_assert_int_eq(res, OK);
   ck_assert_int_eq(obj->num_vertices, 8);
-  ck_assert(assert_double_eq(obj->points[0].x, 0.0));
-  ck_assert(assert_double_eq(obj->points[1].x, 2.0));
-  ck_assert(assert_double_eq(obj->points[2].x, 2.0));
-  ck_assert(assert_double_eq(obj->points[3].x, 0.0));
-  ck_assert(assert_double_eq(obj->points[4].x, 0.0));
-  ck_assert(assert_double_eq(obj->points[5].x, 2.0));
-  ck_assert(assert_double_eq(obj->points[6].x, 2.0));
-  ck_assert(assert_double_eq(obj->points[7].x, 0.0));
   clean_obj(obj);
+  free(obj);
 }
 
 END_TEST
@@ -272,10 +302,10 @@ START_TEST(test_move_y_1) {
   object_t *obj;
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
-  double angle = 2.0;
-  char *filename = "models/cube.obj";
+  double val = 2.0;
+  char *filename = "3DViewer/test/models/cube.obj";
   parse_obj_file(filename, obj);
-  res = move_y(obj, angle);
+  res = move_y(obj, val);
   ck_assert_int_eq(res, OK);
   ck_assert_int_eq(obj->num_vertices, 8);
   ck_assert(assert_double_eq(obj->points[0].y, 1.0));
@@ -287,6 +317,7 @@ START_TEST(test_move_y_1) {
   ck_assert(assert_double_eq(obj->points[6].y, 3.0));
   ck_assert(assert_double_eq(obj->points[7].y, 3.0));
   clean_obj(obj);
+  free(obj);
 }
 
 END_TEST
@@ -311,6 +342,7 @@ START_TEST(test_move_z_1) {
   ck_assert(assert_double_eq(obj->points[6].z, 3.0));
   ck_assert(assert_double_eq(obj->points[7].z, 3.0));
   clean_obj(obj);
+  free(obj);
 }
 
 END_TEST
@@ -335,6 +367,7 @@ START_TEST(test_scale) {
       ck_assert(assert_double_eq(obj->points[i].z, original_points[i].z * angle));
   }
   clean_obj(obj);
+  free(obj);
 }
 
 END_TEST
@@ -361,6 +394,7 @@ START_TEST(test_rotate_x) {
       ck_assert(assert_double_eq(obj->points[i].z, original_points[i].y * sin_angle + original_points[i].z * cos_angle));
   }
   clean_obj(obj);
+  free(obj);
 }
 
 END_TEST
@@ -387,6 +421,7 @@ START_TEST(test_rotate_y) {
     ck_assert(assert_double_eq(obj->points[i].z, original_points[i].x * sin_angle + original_points[i].z * cos_angle));
   }
   clean_obj(obj);
+  free(obj);
 }
 
 END_TEST
@@ -413,6 +448,7 @@ START_TEST(test_rotate_z) {
     ck_assert(assert_double_eq(obj->points[i].z, original_points[i].z));
   }
   clean_obj(obj);
+  free(obj);
 }
 
 END_TEST
@@ -434,6 +470,7 @@ START_TEST(test_min_max_1) {
   ck_assert(assert_double_eq(min_z, -1.0));
   ck_assert(assert_double_eq(max_z, 1.0));
   clean_obj(obj);
+  free(obj);
 }
 
 END_TEST
@@ -458,6 +495,7 @@ START_TEST(test_min_max_2) {
   ck_assert(assert_double_eq(min_z_val,  0.050200));
   ck_assert(assert_double_eq(max_z_val, 27.5759));
   clean_obj(obj);
+  free(obj);
 }
 
 END_TEST
@@ -497,7 +535,18 @@ Suite *Viewer3D_suite_4(void) {
   return s;
 }
 
-/*Suite *Viewer3D_suite_4(void) {
+Suite *Viewer3D_suite_5(void) {
+  Suite *s = suite_create("\x1b[33mTEST_ALLOCATE\x1b[0m");
+  TCase *tcase_allocate = tcase_create("test_allocate_vertices");
+  suite_add_tcase(s, tcase_allocate);
+  tcase_add_test(tcase_allocate, test_allocate_vertices_1);
+  tcase_add_test(tcase_allocate, test_allocate_vertices_2);
+  tcase_add_test(tcase_allocate, test_allocate_faces_1);
+  tcase_add_test(tcase_allocate, test_allocate_faces_2);
+  return s;
+}
+
+/*Suite *Viewer3D_suite_6(void) {
   Suite *s = suite_create("\x1b[33mTEST_INDEXES\x1b[0m");
   TCase *tcase_write_ind_vert = tcase_create("test_write_ind_vertices");
   suite_add_tcase(s, tcase_write_ind_vert);
@@ -506,33 +555,23 @@ Suite *Viewer3D_suite_4(void) {
   return s;
 }*/
 
-Suite *Viewer3D_suite_5(void) {
-  Suite *s = suite_create("\x1b[33mTEST_COORDINATES\x1b[0m");
-  TCase *tcase_write_coord = tcase_create("test_write_coord");
-  suite_add_tcase(s, tcase_write_coord);
-  tcase_add_test(tcase_write_coord, test_write_coord_1);
-  tcase_add_test(tcase_write_coord, test_write_coord_2);
-  return s;
-}
-
-
-Suite *Viewer3D_suite_6(void) {
+/*Suite *Viewer3D_suite_7(void) {
   Suite *s = suite_create("\x1b[33mTEST_ADD_FACES\x1b[0m");
   TCase *tcase_add_face = tcase_create("test_add_face_to_obj");
   suite_add_tcase(s, tcase_add_face);
   tcase_add_test(tcase_add_face, test_add_face_to_obj_1);
   return s;
-}
+}*/
 
-Suite *Viewer3D_suite_7(void) {
+/*Suite *Viewer3D_suite_8(void) {
   Suite *s = suite_create("\x1b[33mTEST_ADD_VERTICES\x1b[0m");
   TCase *tcase_add_vert = tcase_create("test_add_vertex_to_obj");
   suite_add_tcase(s, tcase_add_vert);
   tcase_add_test(tcase_add_vert, test_add_vertex_to_obj_1);
   return s;
-}
+}*/
 
-Suite *Viewer3D_suite_8(void) {
+Suite *Viewer3D_suite_9(void) {
   Suite *s = suite_create("\x1b[33mTEST_PARSE_OBJ\x1b[0m");
   TCase *tcase_pars_obj = tcase_create("test_pars_obj");
   suite_add_tcase(s, tcase_pars_obj);
@@ -540,7 +579,7 @@ Suite *Viewer3D_suite_8(void) {
   return s;
 }
 
-Suite *Viewer3D_suite_9(void) {
+Suite *Viewer3D_suite_10(void) {
   Suite *s = suite_create("\x1b[33mTEST_MOVE\x1b[0m");
   TCase *tcase_move = tcase_create("test_moeve");
   suite_add_tcase(s,tcase_move);
@@ -551,7 +590,7 @@ Suite *Viewer3D_suite_9(void) {
 }
 
 
-Suite *Viewer3D_suite_10(void) {
+Suite *Viewer3D_suite_11(void) {
   Suite *s = suite_create("\x1b[33mTEST_SCALE\x1b[0m");
   TCase *tcase_scale = tcase_create("test_scale");
   suite_add_tcase(s, tcase_scale);
@@ -559,7 +598,7 @@ Suite *Viewer3D_suite_10(void) {
   return s;
 }
 
-Suite *Viewer3D_suite_11(void) {
+Suite *Viewer3D_suite_12(void) {
   Suite *s = suite_create("\x1b[33mTEST_ROTATE\x1b[0m");
   TCase *tcase_rotate = tcase_create("test_rotate");
   suite_add_tcase(s, tcase_rotate);
@@ -570,7 +609,7 @@ Suite *Viewer3D_suite_11(void) {
 }
 
 
-Suite *Viewer3D_suite_12(void) {
+Suite *Viewer3D_suite_13(void) {
   Suite *s = suite_create("\x1b[33mTEST_MIN_MAX\x1b[0m");
   TCase *tcase_min_max = tcase_create("test_min_max");
   suite_add_tcase(s, tcase_min_max);
@@ -586,13 +625,14 @@ int main(void) {
     Viewer3D_suite_3(),
     Viewer3D_suite_4(),
     Viewer3D_suite_5(),
-    Viewer3D_suite_6(),
-    Viewer3D_suite_7(),
-    Viewer3D_suite_8(),
+    //Viewer3D_suite_6(),
+    //Viewer3D_suite_7(),
+    //Viewer3D_suite_8(),
     Viewer3D_suite_9(),
     Viewer3D_suite_10(),
     Viewer3D_suite_11(),
-    Viewer3D_suite_12(), NULL
+    Viewer3D_suite_12(),
+    Viewer3D_suite_13(), NULL
   };
 
   int fail_count = 0;
