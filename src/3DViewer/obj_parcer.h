@@ -35,7 +35,7 @@ int add_vertex_to_obj(object_t *obj, double *coord);
 int add_face_to_obj(object_t *obj, unsigned *indices, int num_indices);
 int write_coord_vertex(char *line, object_t *obj);
 int write_ind_vertices(char *line, object_t *obj);
-void clean_obj(object_t *obj);
+void clean_obj(object_t **obj_ptr);
 int parse_obj_file(const char *filename, object_t *obj);
 int is_digit(char c);
 int allocate_vertices(object_t *obj, int num_vertices) ;

@@ -3,6 +3,7 @@
 #include"widget.h"
 #include<QFileDialog>
 #include<QDebug>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -93,6 +94,7 @@ ui->openGLWidget->setVertexShape(vertexShape);
 }
 void MainWindow::on_FileButton_clicked()
 {
+    std::cout  << "File button clicked.";
     QString fileName = QFileDialog::getOpenFileName(this,
                                                             tr("Open OBJ File"),
                                                             "",

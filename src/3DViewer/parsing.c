@@ -30,7 +30,6 @@ int add_face_to_obj(object_t *obj, unsigned *indices, int num_indices) {
         obj->faces[obj->num_faces].vertex_indices[i] = indices[i];
     }
     obj->num_faces++;
-
     return OK;
 }
 float parse_float_number(char* str) {
@@ -153,10 +152,7 @@ int write_ind_vertices(char *line, object_t *obj) {
 
        while (*p != '\0' && num_indices < 100) {
            if (is_digit(*p)) {
-               if (sscanf(p, "%u", &indices[num_indices]) != 1) {
-                   return ERROR;
-               }
-               num_indices++;
+               sscanf(p, "%u", &indices[num_indices++]);
                while (is_digit(*p)) {
                    p++;
                }
@@ -167,27 +163,34 @@ int write_ind_vertices(char *line, object_t *obj) {
        }
        if (num_indices == 0) {
            return ERROR;
-       }
+       } 
        code = add_face_to_obj(obj, indices, num_indices);
        return code;
 }
 
-void clean_obj(object_t *obj) {
-
-if(obj->num_faces!=0){
-        for (int i = 0; i < obj->num_faces; i++) {
-            if(obj->faces[i].vertex_indices!=NULL){
-            free(obj->faces[i].vertex_indices);
+void clean_obj(object_t **obj_ptr) {
+    object_t *obj = *obj_ptr;
+    if (obj != NULL) {   
+        if(obj->num_faces!=0){
+            for (int i = 0; i < obj->num_faces; i++) {
+                if(obj->faces[i].vertex_indices!=NULL){
+                    free(obj->faces[i].vertex_indices);
+                }
             }
         }
-}
-if(obj->faces!=NULL){
-        free(obj->faces);
-}
-if(obj->points!=NULL){
-        free(obj->points);
-}
 
+        if(obj->faces != NULL){
+            free(obj->faces);
+        }
+        
+        if(obj->points != NULL){
+            free(obj->points);
+        }
+
+        free(obj);
+
+        *obj_ptr = NULL;
+    }
 }
 
 int parse_obj_file(const char *filename, object_t *obj) {
