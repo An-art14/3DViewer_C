@@ -361,15 +361,15 @@
      <item>
       <widget class="QGroupBox" name="groupBox_3">
        <property name="title">
-        <string>GroupBox</string>
+        <string>Vertex View</string>
        </property>
        <widget class="QRadioButton" name="EmptyRadioButton">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>30</y>
-          <width>397</width>
-          <height>23</height>
+          <y>32</y>
+          <width>81</width>
+          <height>21</height>
          </rect>
         </property>
         <property name="text">
@@ -382,10 +382,10 @@
        <widget class="QRadioButton" name="CircleRadioButton">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>60</y>
-          <width>397</width>
-          <height>23</height>
+          <x>190</x>
+          <y>32</y>
+          <width>221</width>
+          <height>21</height>
          </rect>
         </property>
         <property name="text">
@@ -395,10 +395,10 @@
        <widget class="QRadioButton" name="SquareRadioButton">
         <property name="geometry">
          <rect>
-          <x>190</x>
-          <y>30</y>
-          <width>397</width>
-          <height>23</height>
+          <x>100</x>
+          <y>32</y>
+          <width>101</width>
+          <height>21</height>
          </rect>
         </property>
         <property name="text">

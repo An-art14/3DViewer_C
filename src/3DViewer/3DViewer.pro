@@ -3,7 +3,7 @@ macx {
     LIBS     += -framework GLUT -framework OpenGL -framework Cocoa
 } else {
     QT       += core gui opengl
-    LIBS     += -lOpenGL -lGLU -lglut
+    LIBS     += -lOpenGL -lGLU
 }
 
 include(3rdparty/src/gifimage/qtgifimage.pri)
