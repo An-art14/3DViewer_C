@@ -186,7 +186,10 @@ void clean_obj(object_t *obj_ptr) {
             free(obj_ptr->points);
         }
 
-
+        obj_ptr->num_faces = 0;
+        obj_ptr->num_vertices = 0;
+        obj_ptr->faces = NULL;
+        obj_ptr->points = NULL;
     }
 }
 

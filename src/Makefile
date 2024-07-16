@@ -24,7 +24,7 @@ MAKE = make
 # Folders
 SRC_DIR = 3DViewer
 BUILD_DIR = 3DViewer/s21_viewer
-TEST_DIR = 3DViewer/tests
+TEST_DIR = 3DViewer/test/tests.c
 
 # Executable files
 S21_TEST = $(DEST_DIR)/s21_test
@@ -47,7 +47,7 @@ INST_DIR=$(DEST_DIR)
 DIST_DIR=$(DEST_DIR)-1.0
 
 # Targets
-all : $(LIB_NOTATION) test gcov_report install
+all : $(LIB_NOTATION) tests gcov_report install
 
 $(LIB_NOTATION) :
 	mkdir -p $(DEST_DIR)
@@ -58,7 +58,7 @@ $(LIB_NOTATION) :
 	mv *.o $(OBJ)
 
 tests : $(LIB_NOTATION)
-	$(CFLAGS) $(SRC_TEST) $(LIB_NOTATION) -o $(S21_TEST) $(LIB)
+	$(CFLAGS) $(TEST_DIR) $(LIB_NOTATION) -o $(S21_TEST) $(LIB)
 	./$(S21_TEST)
 
 gcov_report :
