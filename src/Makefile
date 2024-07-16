@@ -98,7 +98,7 @@ dvi:
 	open ./manual.md
 
 leaks :
-	CK_FORK=no leaks -atExit -q -- ./$(S21_TEST)
+	CK_FORK=no leaks -atExit -- ./$(S21_TEST)
 
 valgrind :
 	CK_FORK=no valgrind  --track-origins=yes --tool=memcheck --leak-check=yes --show-leak-kinds=all ./$(S21_TEST)

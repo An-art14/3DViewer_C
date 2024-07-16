@@ -28,12 +28,11 @@ static inline int assert_double_eq(double expected, double actual) {
 
 START_TEST(test_obj_create) {
   int res = 0;
-    object_t *obj;
-    obj = (object_t *)malloc(sizeof(object_t));
-    res = create_obj(obj);
-    ck_assert_int_eq(res, OK);
-    clean_obj(obj);
-    free(obj);
+  object_t *obj;
+  obj = (object_t *)malloc(sizeof(object_t));
+  res = create_obj(obj);
+  ck_assert_int_eq(res, OK);
+  free(obj);
 }
 END_TEST
 
@@ -61,7 +60,8 @@ END_TEST
 
 START_TEST(test_pars_2) {
   int res = 0;
-  object_t *obj = NULL;
+  object_t *obj;
+  obj = (object_t *)malloc(sizeof(object_t));
   char *filename = "";
   res = parse_obj_file(filename, obj);
   ck_assert_int_eq(res, ERROR);
@@ -74,10 +74,8 @@ START_TEST(test_pars_3) {
   char *filename = "no_file.obj";
   object_t *obj;
   obj = (object_t *)malloc(sizeof(object_t));
-  create_obj(obj);
   res = parse_obj_file(filename, obj);
   ck_assert_int_eq(res, ERROR);
-  clean_obj(obj);
   free(obj);
 }
 END_TEST
@@ -146,6 +144,8 @@ START_TEST(test_allocate_vertices_2) {
   free(obj->points);
   free(obj);
 }
+
+END_TEST
 
 START_TEST(test_allocate_faces_1) {
   int res = 0;
@@ -277,9 +277,6 @@ START_TEST(test_add_vertex_max_vertices) {
 }
 END_TEST
 
-
-
-
 START_TEST(test_pars_obj_1) {
   int res = 0;
   object_t *obj;
@@ -294,7 +291,6 @@ START_TEST(test_pars_obj_1) {
   clean_obj(obj);
   free(obj);
 }   
-
 END_TEST
 
 START_TEST(test_move_x_1) {
@@ -607,8 +603,3 @@ int main(void) {
   printf("\x1b[32mTOTAL NUMBER OF FAILURES: %d\x1b[0m\n", fail_count);
   return fail_count;
 }
-
-
-
-      
-  
