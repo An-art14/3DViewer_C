@@ -232,24 +232,23 @@ void Widget::draw(object_t model)
 void Widget::setupShader()
 {
     // Vertex shader source code
-    const char* vertexShaderSource = R"(
-        #version 330 core
-        layout (location = 0) in vec3 position;
-        uniform mat4 u_MVP;
-        void main(void) {
-            gl_Position = u_MVP * vec4(position, 1.0);
-        }
-    )";
+const char* vertexShaderSource = R"(
+    #version 120
+    attribute vec3 position;
+    uniform mat4 u_MVP;
+    void main(void) {
+        gl_Position = u_MVP * vec4(position, 1.0);
+    }
+)";
 
     // Fragment shader source code
-    const char* fragmentShaderSource = R"(
-        #version 330 core
-        out vec4 fragColor;
-        uniform vec4 u_Color;
-        void main(void) {
-            fragColor = u_Color;
-        }
-    )";
+const char* fragmentShaderSource = R"(
+    #version 120
+    uniform vec4 u_Color;
+    void main(void) {
+        gl_FragColor = u_Color;
+    }
+)";
 
     // Compile vertex shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);

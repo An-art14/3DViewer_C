@@ -168,28 +168,25 @@ int write_ind_vertices(char *line, object_t *obj) {
        return code;
 }
 
-void clean_obj(object_t **obj_ptr) {
-    object_t *obj = *obj_ptr;
-    if (obj != NULL) {   
-        if(obj->num_faces!=0){
-            for (int i = 0; i < obj->num_faces; i++) {
-                if(obj->faces[i].vertex_indices!=NULL){
-                    free(obj->faces[i].vertex_indices);
+void clean_obj(object_t *obj_ptr) {
+
+        if(obj_ptr->num_faces!=0){
+            for (int i = 0; i < obj_ptr->num_faces; i++) {
+                if(obj_ptr->faces[i].vertex_indices!=NULL){
+                    free(obj_ptr->faces[i].vertex_indices);
                 }
             }
-        }
 
-        if(obj->faces != NULL){
-            free(obj->faces);
+
+        if(obj_ptr->faces != NULL){
+            free(obj_ptr->faces);
         }
         
-        if(obj->points != NULL){
-            free(obj->points);
+        if(obj_ptr->points != NULL){
+            free(obj_ptr->points);
         }
 
-        free(obj);
 
-        *obj_ptr = NULL;
     }
 }
 
