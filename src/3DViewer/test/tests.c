@@ -37,7 +37,7 @@ START_TEST(test_obj_create) {
 END_TEST
 
 START_TEST(test_count_vertices) {
-  FILE *fp = fopen("3DViewer/test/models/cube.obj", "r");
+  FILE *fp = fopen("3DViewer/test/models/cube.txt", "r");
   if (fp == NULL) {
     ck_assert_msg(0, "Can't open file");
   }
@@ -48,7 +48,7 @@ START_TEST(test_count_vertices) {
 END_TEST
 
 START_TEST(test_count_faces) {
-  FILE *fp = fopen("3DViewer/test/models/cube.obj", "r");
+  FILE *fp = fopen("3DViewer/test/models/cube.txt", "r");
   if (fp == NULL) {
     ck_assert_msg(0, "Can't open file");
   }
@@ -104,7 +104,7 @@ START_TEST(test_clean_2) {
   object_t *obj;
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
-  char *filename = "../models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.txt";
   parse_obj_file(filename, obj);
   clean_obj(obj);
   ck_assert_int_eq(obj->num_vertices, 0);
@@ -133,7 +133,7 @@ START_TEST(test_allocate_vertices_2) {
   int res = 0;
   object_t *obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
-  FILE *fp = fopen("3DViewer/test/models/cube.obj", "r");
+  FILE *fp = fopen("3DViewer/test/models/cube.txt", "r");
   if (fp == NULL) {
     ck_assert_msg(0, "Can't open file");
   }
@@ -166,7 +166,7 @@ START_TEST(test_allocate_faces_2) {
   int res = 0;
   object_t *obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
-  FILE *fp = fopen("3DViewer/test/models/cube.obj", "r");
+  FILE *fp = fopen("3DViewer/test/models/cube.txt", "r");
   if (fp == NULL) {
     ck_assert_msg(0, "Can't open file");
   }
@@ -282,7 +282,7 @@ START_TEST(test_pars_obj_1) {
   object_t *obj;
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
-  char *filename = "3DViewer/test/models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.txt";
   res = parse_obj_file(filename, obj);
   ck_assert_int_eq(res, OK);
   ck_assert_int_eq(obj->num_faces, 12);
@@ -299,7 +299,7 @@ START_TEST(test_move_x_1) {
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
   double val = 2.0;
-  char *filename = "3DViewer/test/models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.txt";
   parse_obj_file(filename, obj);
   res = move_x(obj, val);
   ck_assert_int_eq(res, OK);
@@ -324,7 +324,7 @@ START_TEST(test_move_y_1) {
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
   double val = 2.0;
-  char *filename = "3DViewer/test/models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.txt";
   parse_obj_file(filename, obj);
   res = move_y(obj, val);
   ck_assert_int_eq(res, OK);
@@ -349,7 +349,7 @@ START_TEST(test_move_z_1) {
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
   double angle = 2.0;
-  char *filename = "3DViewer/test/models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.txt";
   parse_obj_file(filename, obj);
   res = move_z(obj, angle);
   ck_assert_int_eq(res, OK);
@@ -374,7 +374,7 @@ START_TEST(test_scale) {
   obj = (object_t *)malloc(sizeof(object_t));
   create_obj(obj);
   double angle = 2.0;
-  char *filename = "models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.txt";
   parse_obj_file(filename, obj);
   vertex_t original_points[obj->num_vertices];
   for (int i = 0; i < obj->num_vertices; i++) {
@@ -401,7 +401,7 @@ START_TEST(test_rotate_x) {
   double angle = M_PI / 2.0;
   double cos_angle = cos(angle);
   double sin_angle = sin(angle);
-  char *filename = "models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.txt";
   parse_obj_file(filename, obj);
   vertex_t original_points[obj->num_vertices];
   for (int i = 0; i < obj->num_vertices; i++) {
@@ -428,7 +428,7 @@ START_TEST(test_rotate_y) {
   double angle = M_PI * 2.0;
   double cos_angle = cos(angle);
   double sin_angle = sin(angle);
-  char *filename = "models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.txt";
   parse_obj_file(filename, obj);
   vertex_t original_points[obj->num_vertices];
   for (int i = 0; i < obj->num_vertices; i++) {
@@ -455,7 +455,7 @@ START_TEST(test_rotate_z) {
   double angle = M_PI / 2.0;
   double cos_angle = cos(angle);
   double sin_angle = sin(angle);
-  char *filename = "models/cube.obj";
+  char *filename = "3DViewer/test/models/cube.txt";
   parse_obj_file(filename, obj);
   vertex_t original_points[obj->num_vertices];
   for (int i = 0; i < obj->num_vertices; i++) {
