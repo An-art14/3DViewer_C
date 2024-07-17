@@ -3,7 +3,7 @@ CFLAGS = gcc -Wall -Wextra -Werror -std=c11
 INFO = report.info
 HTML = $(REPORT)/index.html
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage
-EXCLUDE = --exclude '/usr/*' --exclude '$(TESTS)/*'
+EXCLUDE =  --exclude '$(TESTS)/*'
 UNAME = $(shell uname -s)
 
 ifeq ($(UNAME), Linux)
