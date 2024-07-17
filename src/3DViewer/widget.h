@@ -38,7 +38,7 @@ protected:
 
     void initializeVertices();
     void initializeEdges();
-    void initializeVerticesAndEdges();
+
 private:
 
     object_t model;

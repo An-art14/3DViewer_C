@@ -106,7 +106,7 @@ valgrind :
 clean :
 	rm -rf $(S21_TEST) $(S21_GCOV) $(REPORT) $(OBJ) $(GCOV) *.{a,o,gc*,out,dSYM} .clang-format $(DIST_DIR).tar $(BUILD_DIR)
 	rm -rf  *.tar manual
-
+	rm -rf s21_viewer
 rebuild :
 	make clean
 	make install

@@ -210,7 +210,7 @@ void MainWindow::on_yRotationSlider_valueChanged(int value)
     if(model.num_vertices != 0 && currentValues.yRotation != value) {
         currentValues.yRotation = value;
         ui->yRotationSpinBox->setValue(value);
-        rotate_y(&model, value);
+        rotate_y(&model, (double)value);
         transformAndDraw();
     }
 }
@@ -355,7 +355,7 @@ void MainWindow::on_ModelColorButton_clicked()
 }
 
 void MainWindow::on_perspectiveRadioButton_clicked(bool checked) {
-    if(model.num_vertices==0){
+    if(model.num_vertices!=0){
     if (checked) {
         projectionType = "Perspective";
         ui->openGLWidget->setProjectionType(projectionType);
@@ -464,6 +464,8 @@ void MainWindow::on_ParralelRadioButton_clicked(bool checked)
     }
     }
 }
+
+
 
 
 

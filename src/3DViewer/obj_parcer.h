@@ -14,7 +14,7 @@
 typedef enum { OK, ERROR, } return_code;
 
 typedef struct {
-    unsigned *vertex_indices;
+    unsigned int *vertex_indices;
     int num_indices_in_face;
 } face_t;
 

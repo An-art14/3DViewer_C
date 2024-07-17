@@ -38,17 +38,11 @@ void Widget::initializeGL()
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_LINE_SMOOTH);
     setupShader();
-    initializeVerticesAndEdges();
 
 
-}
-void Widget::initializeVerticesAndEdges()
-{
-    glGenBuffers(1, &vboVertices);
-       glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-       glBufferData(GL_ARRAY_BUFFER, model.num_vertices * sizeof(vertex_t), model.points, GL_STATIC_DRAW);
 
 }
+
 object_t Widget::getModel()const
 {
     return model;
@@ -64,9 +58,20 @@ void Widget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (model.num_vertices != 0) {
-        qDebug() << "Drawing model";
         glUseProgram(shaderProgram);
         setupProjectionMatrix();
+
+        glBegin(GL_TRIANGLES);
+        for (int i = 0; i < model.num_faces; ++i) {
+            const face_t& face = model.faces[i];
+for(int j=0;j<model.faces[i].num_indices_in_face;j++)
+{
+ const vertex_t& v = model.points[face.vertex_indices[j]-1];
+ glVertex3f(v.x, v.y, v.z);
+}
+        }
+        glEnd();
+
         drawEdges();
         drawVertices();
 
@@ -74,11 +79,14 @@ void Widget::paintGL()
     }
 }
 
-void Widget::setupProjectionMatrix() {
+void Widget::setupProjectionMatrix()
+{
     QMatrix4x4 projectionMatrix;
     if (projectionType == "Perspective") {
         projectionMatrix.perspective(45.0f, static_cast<float>(width()) / static_cast<float>(height()), 0.1f, 100.0f);
+
     } else {
+
         projectionMatrix.ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
     }
 
@@ -89,15 +97,11 @@ void Widget::setupProjectionMatrix() {
     modelViewMatrix.setToIdentity();
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "u_ModelView"), 1, GL_FALSE, modelViewMatrix.constData());
     glUniform4f(glGetUniformLocation(shaderProgram, "u_Color"), modelColor.redF(), modelColor.greenF(), modelColor.blueF(), 1.0f);
-    glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
-    glDisableVertexAttribArray(0);
 
 }
 
-void Widget::drawEdges() {
+void Widget::drawEdges()
+{
     glUniform4f(glGetUniformLocation(shaderProgram, "u_Color"), edgeColor.redF(), edgeColor.greenF(), edgeColor.blueF(), 1.0f);
     glLineWidth(edgeWidth);
     if (edgeType == "Dashed") {
@@ -107,44 +111,42 @@ void Widget::drawEdges() {
         glDisable(GL_LINE_STIPPLE);
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
-    glDisableVertexAttribArray(0);
-
     glBegin(GL_LINES);
     for (int i = 0; i < model.num_faces; ++i) {
         const face_t& face = model.faces[i];
         if (model.points != NULL && face.num_indices_in_face != 0) {
-            const vertex_t& v1 = model.points[face.vertex_indices[0]];
-            const vertex_t& v2 = model.points[face.vertex_indices[1]];
-            const vertex_t& v3 = model.points[face.vertex_indices[2]];
+            const vertex_t& v1 = model.points[face.vertex_indices[0]-1];
+            const vertex_t& v2 = model.points[face.vertex_indices[1]-1];
+            const vertex_t& v3 = model.points[face.vertex_indices[2]-1];
             glVertex3f(v1.x, v1.y, v1.z);
             glVertex3f(v2.x, v2.y, v2.z);
             glVertex3f(v2.x, v2.y, v2.z);
             glVertex3f(v3.x, v3.y, v3.z);
-            glVertex3f(v3.x, v3.y, v3.z);
             glVertex3f(v1.x, v1.y, v1.z);
+
         }
     }
     glEnd();
     glDisable(GL_LINE_STIPPLE);
 }
 
+
 void Widget::drawVertices() {
-    glUniform4f(glGetUniformLocation(shaderProgram, "u_Color"), vertexColor.redF(), vertexColor.greenF(), vertexColor.blueF(), 1.0f);
+   glUniform4f(glGetUniformLocation(shaderProgram, "u_Color"), vertexColor.redF(), vertexColor.greenF(), vertexColor.blueF(), 1.0f);
+
     if (vertexShape == "Circle") {
         glPointSize(vertexSize);
         glBegin(GL_POINTS);
         for (int i = 0; i < model.num_vertices; ++i) {
             const vertex_t& vertex = model.points[i];
+
             glVertex3f(vertex.x, vertex.y, vertex.z);
         }
         glEnd();
     } else if (vertexShape == "Square") {
         glBegin(GL_QUADS);
         for (int i = 0; i < model.num_vertices; ++i) {
+
             const vertex_t& vertex = model.points[i];
             float halfSize = vertexSize * 0.005f;
             glVertex3f(vertex.x - halfSize, vertex.y - halfSize, vertex.z);
@@ -158,43 +160,13 @@ void Widget::drawVertices() {
 
 
 
-
-
 void Widget::draw_obj(const char* filename)
 {
 
 
         parse_obj_file(filename, &model);
 
-        std::vector<float> vertices;
-        for (int i = 0; i < model.num_vertices; ++i) {
-            vertices.push_back(model.points[i].x);
-            vertices.push_back(model.points[i].y);
-            vertices.push_back(model.points[i].z);
-        }
 
-        std::vector<unsigned int> indices;
-        for (int i = 0; i < model.num_faces; ++i) {
-            for(int j=0;j<model.faces[i].num_indices_in_face;j++)
-        {indices.push_back(model.faces[i].vertex_indices[j]);
-            }
-
-        }
-
-
-        glGenBuffers(1, &vboVertices);
-        glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-
-
-        glGenBuffers(1, &vboIndices);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-        numIndices = indices.size();
 
 
 }
@@ -202,31 +174,7 @@ void Widget::draw(object_t model)
 {
     this->model = model;
     update();
-    std::vector<float> vertices;
-    for (int i = 0; i < model.num_vertices; ++i) {
-        vertices.push_back(model.points[i].x);
-        vertices.push_back(model.points[i].y);
-        vertices.push_back(model.points[i].z);
-    }
 
-    std::vector<unsigned int> indices;
-    for (int i = 0; i < model.num_faces; ++i) {
-        for(int j=0;j<model.faces[i].num_indices_in_face;j++)
-    {
-                indices.push_back(model.faces[i].vertex_indices[j]);
-        }
-    }
-
-    glGenBuffers(1, &vboVertices);
-    glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glGenBuffers(1, &vboIndices);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-    numIndices = indices.size();
 }
 
 void Widget::setupShader()

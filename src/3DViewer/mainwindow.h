@@ -89,6 +89,7 @@ private slots:
 
 
 
+
 private:
     struct TransformValues {
         int xTranslation;
