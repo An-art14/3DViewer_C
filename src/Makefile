@@ -24,7 +24,7 @@ MAKE = make
 # Folders
 SRC_DIR = 3DViewer
 BUILD_DIR = 3DViewer/s21_viewer
-TEST_DIR = 3DViewer/test/tests.c
+TEST_DIR = 3DViewer/test/
 
 # Executable files
 S21_TEST = $(DEST_DIR)/s21_test
@@ -47,7 +47,7 @@ INST_DIR=$(DEST_DIR)
 DIST_DIR=$(DEST_DIR)-1.0
 
 # Targets
-all : $(LIB_NOTATION) tests gcov_report install
+all :  tests gcov_report install
 
 $(LIB_NOTATION) :
 	mkdir -p $(DEST_DIR)
@@ -58,17 +58,17 @@ $(LIB_NOTATION) :
 	mv *.o $(OBJ)
 
 tests : $(LIB_NOTATION)
-	$(CFLAGS) $(TEST_DIR) $(LIB_NOTATION) -o $(S21_TEST) $(LIB)
+	$(CFLAGS) $(SRC_NOTATION) $(TEST_FILES) -o $(S21_TEST) $(LIB)
 	./$(S21_TEST)
 
 gcov_report :
-	$(CFLAGS) $(SRC_NOTATION) $(SRC_TEST) -o $(S21_GCOV) $(LIB) $(GCOV_FLAGS)
+	$(CFLAGS) $(SRC_NOTATION) $(TEST_FILES) -o $(S21_GCOV) $(LIB) $(GCOV_FLAGS)
 	./$(S21_GCOV)
 	lcov -c -d . -t "$(REPORT)" -o $(INFO) $(EXCLUDE)
 	genhtml -o $(REPORT) $(INFO)
-	rm *test*.gc* $(INFO)
+
 	mkdir -p $(GCOV)
-	mv *.gc* $(GCOV)
+
 	open $(REPORT)/index.html
 
 open :
@@ -76,7 +76,7 @@ open :
 
 style :
 	cp ../materials/linters/.clang-format .
-	clang-format -n $(SRC_DIR)/*.c $(SRC_DIR)/*.h $(TESTS)/*
+	clang-format -n $(SRC_DIR)/*.c $(SRC_DIR)/*.h $(SRC_DIR)/$(TESTS)/*.c
 
 uninstall:
 	rm -r $(BUILD_DIR)
@@ -106,7 +106,7 @@ valgrind :
 clean :
 	rm -rf $(S21_TEST) $(S21_GCOV) $(REPORT) $(OBJ) $(GCOV) *.{a,o,gc*,out,dSYM} .clang-format $(DIST_DIR).tar $(BUILD_DIR)
 	rm -rf  *.tar manual
-	rm -rf s21_viewer
+	rm -rf s21_viewer *.info .clang-format
 rebuild :
 	make clean
 	make install

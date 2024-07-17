@@ -20,23 +20,24 @@ int add_vertex_to_obj(object_t *obj, double *coord) {
 }
 
 int add_face_to_obj(object_t *obj, unsigned *indices, int num_indices) {
-    int code = OK;
-    obj->faces = realloc(obj->faces, (obj->num_faces + 1) * sizeof(face_t));
-    if (obj->faces == NULL) {
-        code = ERROR;
+  int code = OK;
+  obj->faces = realloc(obj->faces, (obj->num_faces + 1) * sizeof(face_t));
+  if (obj->faces == NULL) {
+    code = ERROR;
+  } else {
+    obj->faces[obj->num_faces].vertex_indices =
+        malloc(num_indices * sizeof(unsigned));
+    if (obj->faces[obj->num_faces].vertex_indices == NULL) {
+      code = ERROR;
     } else {
-        obj->faces[obj->num_faces].vertex_indices = malloc(num_indices * sizeof(unsigned));
-        if (obj->faces[obj->num_faces].vertex_indices == NULL) {
-            code = ERROR;
-        } else {
-            obj->faces[obj->num_faces].num_indices_in_face = num_indices;
-            for (int i = 0; i < num_indices; i++) {
-                obj->faces[obj->num_faces].vertex_indices[i] = indices[i];
-            }
-            obj->num_faces++;
-        }
+      obj->faces[obj->num_faces].num_indices_in_face = num_indices;
+      for (int i = 0; i < num_indices; i++) {
+        obj->faces[obj->num_faces].vertex_indices[i] = indices[i];
+      }
+      obj->num_faces++;
     }
-    return code;
+  }
+  return code;
 }
 float parse_float_number(char *str) {
   float result = 0;
@@ -92,7 +93,7 @@ vertex_t parse_vertex(char *str) {
 
 int write_coord_vertex(char *line, object_t *obj) {
   int code = OK;
-  vertex_t vertex = parse_vertex(line + 2); // пропускаем "v "
+  vertex_t vertex = parse_vertex(line + 2);  // пропускаем "v "
   double coord[3] = {vertex.x, vertex.y, vertex.z};
   code = add_vertex_to_obj(obj, coord);
   return code;
@@ -109,7 +110,7 @@ int count_faces(FILE *file) {
     }
   }
 
-  rewind(file); // Возвращаемся к началу файла
+  rewind(file);  // Возвращаемся к началу файла
 
   return num_faces;
 }
@@ -124,7 +125,7 @@ int count_vertices(FILE *file) {
     }
   }
 
-  rewind(file); // Возвращаемся к началу файла
+  rewind(file);  // Возвращаемся к началу файла
 
   return num_vertices;
 }
@@ -148,32 +149,31 @@ int allocate_vertices(object_t *obj, int num_vertices) {
 }
 
 int write_ind_vertices(char *line, object_t *obj) {
-    int code = OK;
-     unsigned indices[100];
-     int num_indices = 0;
-     char *token;
+  int code = OK;
+  unsigned indices[100];
+  int num_indices = 0;
+  char *token;
 
-     // Пропускаем 'f ' в начале строки
-     token = strtok(line + 2, " ");
+  // Пропускаем 'f ' в начале строки
+  token = strtok(line + 2, " ");
 
-     while (token != NULL && num_indices < 100) {
-         unsigned index;
-         if (sscanf(token, "%u", &index) == 1) {
-             indices[num_indices++] = index;
-         }
-         token = strtok(NULL, " ");
-     }
+  while (token != NULL && num_indices < 100) {
+    unsigned index;
+    if (sscanf(token, "%u", &index) == 1) {
+      indices[num_indices++] = index;
+    }
+    token = strtok(NULL, " ");
+  }
 
-     if (num_indices == 0) {
-         return ERROR;
-     }
+  if (num_indices == 0) {
+    return ERROR;
+  }
 
-     code = add_face_to_obj(obj, indices, num_indices);
-     return code;
+  code = add_face_to_obj(obj, indices, num_indices);
+  return code;
 }
 
 void clean_obj(object_t *obj_ptr) {
-
   if (obj_ptr->num_faces != 0) {
     for (int i = 0; i < obj_ptr->num_faces; i++) {
       if (obj_ptr->faces[i].vertex_indices != NULL) {

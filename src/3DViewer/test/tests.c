@@ -1,29 +1,27 @@
 #include <check.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-#define EPSILON 1e-4 
+#define EPSILON 1e-4
 
 #include "../obj_parcer.h"
 
 #define LENGTH 256
 
-void* my_malloc() {
-    return NULL;
-}
+void *my_malloc() { return NULL; }
 
 static inline int assert_double_eq(double expected, double actual) {
-    if (fabs(expected - actual) > EPSILON) {
-        printf("expected: %f, actual: %f\n", expected, actual);
-        return 0;
-    } else {
-        return 1;
-    }
+  if (fabs(expected - actual) > EPSILON) {
+    printf("expected: %f, actual: %f\n", expected, actual);
+    return 0;
+  } else {
+    return 1;
+  }
 }
 
 START_TEST(test_obj_create) {
@@ -89,14 +87,13 @@ START_TEST(test_clean_1) {
   obj->faces = calloc(6, sizeof(face_t));
   obj->points = calloc(8, sizeof(vertex_t));
   clean_obj(obj);
-  
+
   ck_assert_int_eq(obj->num_vertices, 0);
   ck_assert_int_eq(obj->num_faces, 0);
   ck_assert_ptr_eq(obj->faces, NULL);
   ck_assert_ptr_eq(obj->points, NULL);
 
   free(obj);
-
 }
 END_TEST
 
@@ -181,99 +178,99 @@ START_TEST(test_allocate_faces_2) {
 END_TEST
 
 START_TEST(test_add_face_to_obj) {
-    object_t obj;
-    obj.num_faces = 0;
-    obj.faces = malloc(10 * sizeof(face_t));
-    for (int i = 0; i < 10; i++) {
-        obj.faces[i].vertex_indices = NULL;
-    }
+  object_t obj;
+  obj.num_faces = 0;
+  obj.faces = malloc(10 * sizeof(face_t));
+  for (int i = 0; i < 10; i++) {
+    obj.faces[i].vertex_indices = NULL;
+  }
 
-    unsigned indices[3] = {0, 1, 2};
-    int result = add_face_to_obj(&obj, indices, 3);
+  unsigned indices[3] = {0, 1, 2};
+  int result = add_face_to_obj(&obj, indices, 3);
 
-    ck_assert_int_eq(result, OK);
-    ck_assert_int_eq(obj.num_faces, 1);
-    ck_assert_int_eq(obj.faces[0].num_indices_in_face, 3);
-    ck_assert_uint_eq(obj.faces[0].vertex_indices[0], 0);
-    ck_assert_uint_eq(obj.faces[0].vertex_indices[1], 1);
-    ck_assert_uint_eq(obj.faces[0].vertex_indices[2], 2);
+  ck_assert_int_eq(result, OK);
+  ck_assert_int_eq(obj.num_faces, 1);
+  ck_assert_int_eq(obj.faces[0].num_indices_in_face, 3);
+  ck_assert_uint_eq(obj.faces[0].vertex_indices[0], 0);
+  ck_assert_uint_eq(obj.faces[0].vertex_indices[1], 1);
+  ck_assert_uint_eq(obj.faces[0].vertex_indices[2], 2);
 
-    free(obj.faces[0].vertex_indices);
-    free(obj.faces);
+  free(obj.faces[0].vertex_indices);
+  free(obj.faces);
 }
 END_TEST
 
 START_TEST(test_add_face_max_faces) {
-    object_t obj;
-    obj.num_faces = 9; 
-    obj.faces = malloc(10 * sizeof(face_t)); 
-    for (int i = 0; i < 10; i++) {
-        obj.faces[i].vertex_indices = NULL;
-    }
+  object_t obj;
+  obj.num_faces = 9;
+  obj.faces = malloc(10 * sizeof(face_t));
+  for (int i = 0; i < 10; i++) {
+    obj.faces[i].vertex_indices = NULL;
+  }
 
-    unsigned indices[3] = {0, 1, 2};
+  unsigned indices[3] = {0, 1, 2};
 
-    int result = add_face_to_obj(&obj, indices, 3);
+  int result = add_face_to_obj(&obj, indices, 3);
 
-    ck_assert_int_eq(result, OK);
-    ck_assert_int_eq(obj.num_faces, 10);
+  ck_assert_int_eq(result, OK);
+  ck_assert_int_eq(obj.num_faces, 10);
 
-    free(obj.faces[9].vertex_indices);
-    free(obj.faces);
+  free(obj.faces[9].vertex_indices);
+  free(obj.faces);
 }
 END_TEST
 
 START_TEST(test_add_face_zero_indices) {
-    object_t obj;
-    obj.num_faces = 0;
-    obj.faces = malloc(10 * sizeof(face_t));
-    for (int i = 0; i < 10; i++) {
-        obj.faces[i].vertex_indices = NULL;
-    }
+  object_t obj;
+  obj.num_faces = 0;
+  obj.faces = malloc(10 * sizeof(face_t));
+  for (int i = 0; i < 10; i++) {
+    obj.faces[i].vertex_indices = NULL;
+  }
 
-    unsigned indices[1] = {0};
+  unsigned indices[1] = {0};
 
-    int result = add_face_to_obj(&obj, indices, 0);
+  int result = add_face_to_obj(&obj, indices, 0);
 
-    ck_assert_int_eq(result, OK);
-    ck_assert_int_eq(obj.num_faces, 1);
-    ck_assert_int_eq(obj.faces[0].num_indices_in_face, 0);
+  ck_assert_int_eq(result, OK);
+  ck_assert_int_eq(obj.num_faces, 1);
+  ck_assert_int_eq(obj.faces[0].num_indices_in_face, 0);
 
-    free(obj.faces[0].vertex_indices);
-    free(obj.faces);
+  free(obj.faces[0].vertex_indices);
+  free(obj.faces);
 }
 END_TEST
 
 START_TEST(test_add_vertex_to_obj) {
-    object_t obj;
-    obj.num_vertices = 0;
-    obj.points = malloc(10 * sizeof(vertex_t));
+  object_t obj;
+  obj.num_vertices = 0;
+  obj.points = malloc(10 * sizeof(vertex_t));
 
-    double coord[3] = {1.0, 2.0, 3.0};
-    int result = add_vertex_to_obj(&obj, coord);
+  double coord[3] = {1.0, 2.0, 3.0};
+  int result = add_vertex_to_obj(&obj, coord);
 
-    ck_assert_int_eq(result, OK);
-    ck_assert_int_eq(obj.num_vertices, 1);
-    ck_assert_double_eq(obj.points[0].x, 1.0);
-    ck_assert_double_eq(obj.points[0].y, 2.0);
-    ck_assert_double_eq(obj.points[0].z, 3.0);
+  ck_assert_int_eq(result, OK);
+  ck_assert_int_eq(obj.num_vertices, 1);
+  ck_assert_double_eq(obj.points[0].x, 1.0);
+  ck_assert_double_eq(obj.points[0].y, 2.0);
+  ck_assert_double_eq(obj.points[0].z, 3.0);
 
-    free(obj.points);
+  free(obj.points);
 }
 END_TEST
 
 START_TEST(test_add_vertex_max_vertices) {
-    object_t obj;
-    obj.num_vertices = 9; 
-    obj.points = malloc(10 * sizeof(vertex_t)); 
-    double coord[3] = {1.0, 2.0, 3.0};
+  object_t obj;
+  obj.num_vertices = 9;
+  obj.points = malloc(10 * sizeof(vertex_t));
+  double coord[3] = {1.0, 2.0, 3.0};
 
-    int result = add_vertex_to_obj(&obj, coord);
+  int result = add_vertex_to_obj(&obj, coord);
 
-    ck_assert_int_eq(result, OK);
-    ck_assert_int_eq(obj.num_vertices, 10);
+  ck_assert_int_eq(result, OK);
+  ck_assert_int_eq(obj.num_vertices, 10);
 
-    free(obj.points);
+  free(obj.points);
 }
 END_TEST
 
@@ -290,7 +287,7 @@ START_TEST(test_pars_obj_1) {
   ck_assert_int_eq(obj->line_num, 18);
   clean_obj(obj);
   free(obj);
-}   
+}
 END_TEST
 
 START_TEST(test_move_x_1) {
@@ -378,14 +375,14 @@ START_TEST(test_scale) {
   parse_obj_file(filename, obj);
   vertex_t original_points[obj->num_vertices];
   for (int i = 0; i < obj->num_vertices; i++) {
-      original_points[i] = obj->points[i];
+    original_points[i] = obj->points[i];
   }
   res = scale(obj, angle);
   ck_assert_int_eq(res, OK);
   for (int i = 0; i < obj->num_vertices; i++) {
-      ck_assert(assert_double_eq(obj->points[i].x, original_points[i].x * angle));
-      ck_assert(assert_double_eq(obj->points[i].y, original_points[i].y * angle));
-      ck_assert(assert_double_eq(obj->points[i].z, original_points[i].z * angle));
+    ck_assert(assert_double_eq(obj->points[i].x, original_points[i].x * angle));
+    ck_assert(assert_double_eq(obj->points[i].y, original_points[i].y * angle));
+    ck_assert(assert_double_eq(obj->points[i].z, original_points[i].z * angle));
   }
   clean_obj(obj);
   free(obj);
@@ -405,14 +402,18 @@ START_TEST(test_rotate_x) {
   parse_obj_file(filename, obj);
   vertex_t original_points[obj->num_vertices];
   for (int i = 0; i < obj->num_vertices; i++) {
-      original_points[i] = obj->points[i];
+    original_points[i] = obj->points[i];
   }
   res = rotate_x(obj, angle);
   ck_assert_int_eq(res, OK);
   for (int i = 0; i < obj->num_vertices; i++) {
-      ck_assert(assert_double_eq(obj->points[i].x, original_points[i].x));
-      ck_assert(assert_double_eq(obj->points[i].y, original_points[i].y * cos_angle - original_points[i].z * sin_angle));
-      ck_assert(assert_double_eq(obj->points[i].z, original_points[i].y * sin_angle + original_points[i].z * cos_angle));
+    ck_assert(assert_double_eq(obj->points[i].x, original_points[i].x));
+    ck_assert(assert_double_eq(
+        obj->points[i].y,
+        original_points[i].y * cos_angle - original_points[i].z * sin_angle));
+    ck_assert(assert_double_eq(
+        obj->points[i].z,
+        original_points[i].y * sin_angle + original_points[i].z * cos_angle));
   }
   clean_obj(obj);
   free(obj);
@@ -437,9 +438,13 @@ START_TEST(test_rotate_y) {
   res = rotate_y(obj, angle);
   ck_assert_int_eq(res, OK);
   for (int i = 0; i < obj->num_vertices; i++) {
-    ck_assert(assert_double_eq(obj->points[i].x, original_points[i].x * cos_angle - original_points[i].z * sin_angle));
+    ck_assert(assert_double_eq(
+        obj->points[i].x,
+        original_points[i].x * cos_angle - original_points[i].z * sin_angle));
     ck_assert(assert_double_eq(obj->points[i].y, original_points[i].y));
-    ck_assert(assert_double_eq(obj->points[i].z, original_points[i].x * sin_angle + original_points[i].z * cos_angle));
+    ck_assert(assert_double_eq(
+        obj->points[i].z,
+        original_points[i].x * sin_angle + original_points[i].z * cos_angle));
   }
   clean_obj(obj);
   free(obj);
@@ -464,8 +469,12 @@ START_TEST(test_rotate_z) {
   res = rotate_z(obj, angle);
   ck_assert_int_eq(res, OK);
   for (int i = 0; i < obj->num_vertices; i++) {
-    ck_assert(assert_double_eq(obj->points[i].x, original_points[i].x * cos_angle - original_points[i].y * sin_angle));
-    ck_assert(assert_double_eq(obj->points[i].y, original_points[i].x * sin_angle + original_points[i].y * cos_angle));
+    ck_assert(assert_double_eq(
+        obj->points[i].x,
+        original_points[i].x * cos_angle - original_points[i].y * sin_angle));
+    ck_assert(assert_double_eq(
+        obj->points[i].y,
+        original_points[i].x * sin_angle + original_points[i].y * cos_angle));
     ck_assert(assert_double_eq(obj->points[i].z, original_points[i].z));
   }
   clean_obj(obj);
@@ -520,7 +529,7 @@ Suite *Viewer3D_suite_5(void) {
   return s;
 }
 
-Suite* Viewer3D_suite_add_vertex(void) {
+Suite *Viewer3D_suite_add_vertex(void) {
   Suite *s = suite_create("\x1b[33mTEST_VERTEX\x1b[0m");
   TCase *tc_core = tcase_create("Core");
   tcase_add_test(tc_core, test_add_vertex_to_obj);
@@ -529,14 +538,14 @@ Suite* Viewer3D_suite_add_vertex(void) {
   return s;
 }
 
-Suite* Viewer3D_suite_add_face(void) {
+Suite *Viewer3D_suite_add_face(void) {
   Suite *s = suite_create("\x1b[33mTEST_FACE\x1b[0m");
   TCase *tc_core = tcase_create("Core");
   tcase_add_test(tc_core, test_add_face_to_obj);
   tcase_add_test(tc_core, test_add_face_max_faces);
   tcase_add_test(tc_core, test_add_face_zero_indices);
   suite_add_tcase(s, tc_core);
-return s;
+  return s;
 }
 
 Suite *Viewer3D_suite_9(void) {
@@ -550,13 +559,12 @@ Suite *Viewer3D_suite_9(void) {
 Suite *Viewer3D_suite_10(void) {
   Suite *s = suite_create("\x1b[33mTEST_MOVE\x1b[0m");
   TCase *tcase_move = tcase_create("test_moeve");
-  suite_add_tcase(s,tcase_move);
+  suite_add_tcase(s, tcase_move);
   tcase_add_test(tcase_move, test_move_x_1);
   tcase_add_test(tcase_move, test_move_y_1);
   tcase_add_test(tcase_move, test_move_z_1);
   return s;
 }
-
 
 Suite *Viewer3D_suite_11(void) {
   Suite *s = suite_create("\x1b[33mTEST_SCALE\x1b[0m");
@@ -577,19 +585,12 @@ Suite *Viewer3D_suite_12(void) {
 }
 
 int main(void) {
-  Suite *list_cases[] = {
-    Viewer3D_suite_1(),
-    Viewer3D_suite_2(),
-    Viewer3D_suite_3(),
-    Viewer3D_suite_4(),
-    Viewer3D_suite_5(),
-    Viewer3D_suite_add_vertex(),
-    Viewer3D_suite_add_face(),
-    Viewer3D_suite_9(),
-    Viewer3D_suite_10(),
-    Viewer3D_suite_11(),
-    Viewer3D_suite_12(), NULL
-  };
+  Suite *list_cases[] = {Viewer3D_suite_1(),        Viewer3D_suite_2(),
+                         Viewer3D_suite_3(),        Viewer3D_suite_4(),
+                         Viewer3D_suite_5(),        Viewer3D_suite_add_vertex(),
+                         Viewer3D_suite_add_face(), Viewer3D_suite_9(),
+                         Viewer3D_suite_10(),       Viewer3D_suite_11(),
+                         Viewer3D_suite_12(),       NULL};
 
   int fail_count = 0;
   printf("\x1b[36mS21_3DVIEWER TESTS...\x1b[0m\n");
